@@ -6,7 +6,7 @@ import numpy as np
 # 128 neuron hidden layer
 # Output layer with 10 output neurons
 
-def initialize_weights_biases(hidden_layer_nodes):
+def initialize_weights_biases(hidden_layer_nodes: int):
     #Initialize the weights not as 0 to allow for change within the network
     W1 = np.random.uniform(-0.5, 0.5, (784, hidden_layer_nodes))
     W2 = np.random.uniform(-0.5, 0.5, (128, 10))

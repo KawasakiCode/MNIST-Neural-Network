@@ -1,8 +1,5 @@
 import numpy as np
 
-TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
-TEST_FILEPATH = "mnist_test/mnist_test.csv"
-
 def load_and_prep_data(filepath):
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
 
