@@ -3,17 +3,17 @@ import numpy as np
 def load_and_prep_data(filepath):
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
 
-    #First column (labels)
+    # First column (labels)
     Y_raw = data[:, 0]
 
-    #Pixel data (28x28 = 784 values)
+    # Pixel data (28x28 = 784 values)
     X_raw = data[:, 1:]
 
-    #Normalize values so they are between 0.0 and 1.0
-    #Neural networks work faster with smaller numbers
+    # Normalize values so they are between 0.0 and 1.0
+    # Neural networks work faster with smaller numbers
     X = X_raw / 255.0
 
-    #Create an array of zeros (number of images x 10)
+    # Create an array of zeros (number of images x 10)
     num_images = Y_raw.shape[0]
     Y_encoded = np.zeros((num_images, 10))
 
