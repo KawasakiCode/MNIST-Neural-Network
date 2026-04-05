@@ -1,10 +1,10 @@
 import numpy as np
 
-def ReLU(matrix):
+def ReLU(matrix: np.ndarray) -> np.ndarray:
     # np.maximum iterates through the whole array
     return np.maximum(0, matrix)
 
-def softmax(matrix):
+def Softmax(matrix: np.ndarray) -> np.ndarray:
     # Subtract the max from each row of the array to prevent 
     # softmax from doing e^x with very big x which would 
     # result in memory overflow

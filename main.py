@@ -1,7 +1,8 @@
 import numpy as np
 from data import load_and_prep_data
 from network import initialize_weights_biases
-from activations import ReLU, softmax
+from activations import ReLU, Softmax
+from losses import Categorical_Cross_Entropy
 
 TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
 TEST_FILEPATH = "mnist_test/mnist_test.csv"
@@ -21,7 +22,10 @@ A1 = ReLU(Z1)
 Z2 = A1 @ W2 + b2
 
 # Final output of the network
-A2 = softmax(Z2)
+A2 = Softmax(Z2)
+
+# Calculate loss
+CCE_loss = Categorical_Cross_Entropy(A2, Y_train)
 
 
 
