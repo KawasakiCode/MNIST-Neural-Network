@@ -9,10 +9,10 @@ import numpy as np
 def initialize_weights_biases(hidden_layer_nodes: int):
     #Initialize the weights not as 0 to allow for change within the network
     W1 = np.random.uniform(-0.5, 0.5, (784, hidden_layer_nodes))
-    W2 = np.random.uniform(-0.5, 0.5, (128, 10))
+    W2 = np.random.uniform(-0.5, 0.5, (hidden_layer_nodes, 10))
 
-    b1 = np.zeros((hidden_layer_nodes, 1))
-    b2 = np.zeros((10, 1))
+    b1 = np.zeros((1, hidden_layer_nodes))
+    b2 = np.zeros((1, 10))
 
     return W1, W2, b1, b2
 
@@ -40,10 +40,10 @@ def hidden_layer_derivatives(dZ2: np.ndarray, W2: np.ndarray, Z1: np.ndarray, X_
 
     #The output error before ReLU
     relu_derivative = (Z1 > 0)
-    dZ1 = dA1 @ relu_derivative
+    dZ1 = dA1 * relu_derivative
 
     #The output Weights Gradient W1
-    dW1 = (1 / m) * (X_train.T * dZ1)
+    dW1 = (1 / m) * (X_train.T @ dZ1)
 
     #The output Bias Gradient db1
     db1 = (1 / m) * (np.sum(dZ1, axis = 0, keepdims = True))

@@ -1,3 +1,5 @@
 /venv
 /mnist_test
 /mnist_train
+/__pycache__
+/trained_weights.npz

@@ -12,14 +12,14 @@ X_train, Y_train = load_and_prep_data(TRAIN_FILEPATH)
 
 Y_raw = np.argmax(Y_train, axis = 1)
 
-W1, W2, b1, b2 = initialize_weights_biases(128)
+W1, W2, b1, b2 = initialize_weights_biases(512)
 
 # Data to monitor training
 loss_history = []
 accuracy_history = []
 
 print("Training loop started")
-for epoch in range(1000):
+for epoch in range(2000):
     # The intermediate step of the hidden layer which is passed through ReLU
     Z1 = X_train @ W1 + b1
 
@@ -50,17 +50,14 @@ for epoch in range(1000):
     W1, W2, b1, b2 = gradient_descent(dW1, dW2, db1, db2, W1, W2, b1, b2, lr)
 
     if epoch % 100 == 0:
-        print(f"Epoch: {epoch}, Loss: {CCE_loss}, Accuracy: {accuracy}%")
+        print(f"Epoch: {epoch}, Loss: {CCE_loss:.4f}, Accuracy: {accuracy:.2f}%")
 
+print("Attemp saving")
+np.savez("trained_weights.npz", W1=W1, b1=b1, W2=W2, b2=b2)
+print("Saved successfully")
 
-print(f"Training finished. Final results: Loss: {CCE_loss}, Accuracy: {accuracy}%")
+print(f"Training finished. Final results: Loss: {CCE_loss:.4f}, Accuracy: {accuracy:.2f}%")
 plot_training_curves(loss_history, accuracy_history)
 
-test_image = X_train[10]
-test_pure_label = Y_raw[10]
-test_prediction = final_prediction[10]
 
-show_prediction(test_image, test_pure_label, test_prediction)
-
-np.savez("trained_weights.npz", W1=W1, b1=b1, W2=W2, b2=b2)
 
