@@ -1,6 +1,6 @@
 import numpy as np
 from data import load_and_prep_data
-from network import initialize_weights_biases
+from network import initialize_weights_biases, output_layer_derivatives, hidden_layer_derivatives, input_layer_derivatives
 from activations import ReLU, Softmax
 from losses import Categorical_Cross_Entropy
 
@@ -26,6 +26,14 @@ A2 = Softmax(Z2)
 
 # Calculate loss
 CCE_loss = Categorical_Cross_Entropy(A2, Y_train)
+
+# Calculate derivatives with Chain Rule
+dZ2 = output_layer_derivatives(A2, Y_train)
+dW2, db2 = hidden_layer_derivatives(A1, dZ2)
+dW1, db1 = input_layer_derivatives(dZ2, W2, Z1, X_train)
+
+# Send to optimizer to apply gradient descent
+
 
 
 
