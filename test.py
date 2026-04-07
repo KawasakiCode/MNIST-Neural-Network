@@ -13,24 +13,27 @@ saved_data = np.load("trained_weights.npz")
 
 W1 = saved_data['W1']
 W2 = saved_data['W2']
+W3 = saved_data['W3']
 b1 = saved_data['b1']
 b2 = saved_data['b2']
+b3 = saved_data['b3']
 
 # Data to monitor training
 accuracy_history = []
 
 # The intermediate step of the hidden layer which is passed through ReLU
 Z1 = X_test @ W1 + b1
-
-# The output of the hidden layer
 A1 = ReLU(Z1)
 
-# Pass the output of the hidden layer into the output layer
+# Second hidden layer
 Z2 = A1 @ W2 + b2
+A2 = ReLU(Z2)
 
-# Final output of the network
-A2 = Softmax(Z2)
-final_prediction = np.argmax(A2, axis = 1)
+#Output layer
+Z3 = A2 @ W3 + b3
+A3 = Softmax(Z3)
+
+final_prediction = np.argmax(A3, axis = 1)
 boolean_predictions = final_prediction == Y_raw
 accuracy = np.mean(boolean_predictions) * 100
 accuracy_history.append(accuracy)
