@@ -13,10 +13,14 @@ def load_and_prep_data(filepath):
     # Neural networks work faster with smaller numbers
     X = X_raw / 255.0
 
+    m = X.shape[0]
+
+    X_train = X.reshape(m, 1, 28, 28)
+
     # Create an array of zeros (number of images x 10)
     num_images = Y_raw.shape[0]
     Y_encoded = np.zeros((num_images, 10))
 
     Y_encoded[np.arange(num_images), Y_raw.astype(int)] = 1.0
 
-    return X, Y_encoded
+    return X_train, Y_encoded

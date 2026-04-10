@@ -18,6 +18,15 @@ def initialize_weights_biases(hidden_layer_nodes: int):
 
     return W1, W2, W3, b1, b2, b3
 
+def initialize_cnn_filters(num_filters: int):
+    #F1 refers to filter 1 and replaces W1
+    F1 = np.random.randn(num_filters, 1, 3, 3) * np.sqrt(2.0 / (3 * 3))
+
+    #One bias number per filter so 8 bias
+    b_conv = np.zeros((num_filters, 1))
+
+    return F1, b_conv
+
 def loss_derivatives(A3: np.ndarray, Y_train: np.ndarray) -> np.ndarray:
     # The output error dZ3
     dZ3 = A3 - Y_train

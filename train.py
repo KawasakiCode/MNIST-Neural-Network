@@ -4,7 +4,7 @@ from network import initialize_weights_biases, loss_derivatives, output_layer_de
 from activations import ReLU, Softmax
 from losses import Categorical_Cross_Entropy
 from optimizers import gradient_descent
-from metrics import plot_training_curves, show_prediction
+from metrics import plot_training_curves
 
 TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
 

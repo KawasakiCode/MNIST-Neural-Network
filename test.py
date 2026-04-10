@@ -1,7 +1,6 @@
 import numpy as np
 from data import load_and_prep_data
 from activations import ReLU, Softmax
-from metrics import plot_accuracy_only
 
 TEST_FILEPATH = "mnist_test/mnist_test.csv"
 
