@@ -2,8 +2,7 @@ import numpy as np
 from data import load_and_prep_data
 from network import initialize_weights_biases, initialize_cnn_filters
 from forward import conv_forward, linear_forward, relu_forward, flatten_forward, softmax_forward
-from backpropagation import backpropagation, backpropagation_softmax
-from activations import ReLU, Softmax
+from backpropagation import backpropagation_conv, backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, linear_backward
 from losses import Categorical_Cross_Entropy
 from optimizers import gradient_descent
 from metrics import plot_training_curves
@@ -47,16 +46,28 @@ for epoch in range(1000):
     CCE_loss = Categorical_Cross_Entropy(predictions, Y_train)
     loss_history.append(CCE_loss)
 
-    # Calculate derivatives with Chain Rule
-    #TODO make them with the new functions
-    # dZ3 = loss_derivatives(A3, Y_train)
-    # dW3, db3 = output_layer_derivatives(A2, dZ3)
-    # dZ2, dW2, db2 = second_hidden_layer_derivatives(dZ3, Z2, A1, W3)
-    # dW1, db1 = hidden_layer_derivatives(dZ2, W2, Z1, X_train)
+    #Backpropagation
+    #Cross entropy loss and softmax derivative in one function
+    grad_softmax = backpropagation_softmax(Y_train, softmax_cache)
+
+    #Output layer error
+    grad_dense3_out, grad_W3, grad_b3 = linear_backward(grad_softmax, dense3_cache)
+
+    #Second hidden layer error
+    grad_dense2_out, grad_W2, grad_b2 = backpropagation_relu(grad_dense3_out, dense2_cache)
+
+    #Hidden layer error
+    grad_dense1_out, grad_W1, grad_b1 = backpropagation_relu(grad_dense2_out, dense1_cache)
+
+    #Unflatten first hidden layer error
+    grad_unflatten = backpropagation_unflatten(grad_dense1_out, flatten_cache)
+
+    #Convolutional layer error
+    grad_F1, grad_b_conv = backpropagation_conv(grad_unflatten, conv_cache)
 
     # Send to optimizer to apply gradient descent
     lr = 0.01
-    W1, W2, W3, b1, b2, b3 = gradient_descent(dW1, dW2, dW3, db1, db2, db3, W1, W2, W3, b1, b2, b3, lr)
+    W1, W2, W3, b1, b2, b3, F1, b_conv = gradient_descent(grad_W1, grad_W2, grad_W3, grad_b1, grad_b2, grad_b3, W1, W2, W3, b1, b2, b3, F1, b_conv, grad_F1, grad_b_conv, lr)
 
     if epoch % 100 == 0:
         print(f"Epoch: {epoch}, Loss: {CCE_loss:.4f}, Accuracy: {accuracy:.2f}%")

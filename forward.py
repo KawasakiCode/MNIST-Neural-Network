@@ -38,14 +38,6 @@ def flatten_forward(input_data):
 
     return flattened_data, cache
 
-# Forward pass without activation function
-def linear_forward(input_data, weights, biases):
-    pre_activation = input_data @ weights + biases
-
-    cache = (input_data, weights, pre_activation)
-
-    return pre_activation, cache
-
 # Forward pass with ReLU
 def relu_forward(input_data, weights, biases):
     pre_activation = input_data @ weights + biases
@@ -55,7 +47,15 @@ def relu_forward(input_data, weights, biases):
 
     return output_data, cache
 
-# Softmax application (no forward pass)
+# Forward pass without activation function
+def linear_forward(input_data, weights, biases):
+    pre_activation = input_data @ weights + biases
+
+    cache = (input_data, weights, pre_activation)
+
+    return pre_activation, cache
+
+# Softmax application
 def softmax_forward(input_data):
     probabilities = Softmax(input_data)
     cache = probabilities
