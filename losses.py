@@ -1,4 +1,4 @@
-import numpy as np
+import cupy as np
 
 def Categorical_Cross_Entropy(output_matrix: np.ndarray, labels_matrix: np.ndarray):
     # We use .clip to ensure no number in the output matrix is 

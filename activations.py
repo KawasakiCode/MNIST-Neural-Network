@@ -1,4 +1,4 @@
-import numpy as np
+import cupy as np
 
 def ReLU(matrix: np.ndarray) -> np.ndarray:
     # np.maximum iterates through the whole array

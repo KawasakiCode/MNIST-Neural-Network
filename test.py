@@ -1,4 +1,4 @@
-import numpy as np
+import cupy as np
 from data import load_and_prep_data
 from activations import ReLU, Softmax
 
@@ -16,6 +16,8 @@ W3 = saved_data['W3']
 b1 = saved_data['b1']
 b2 = saved_data['b2']
 b3 = saved_data['b3']
+F1 = saved_data['F1']
+b_conv = saved_data['b_conv']
 
 # Data to monitor training
 accuracy_history = []

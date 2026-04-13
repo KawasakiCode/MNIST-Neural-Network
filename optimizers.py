@@ -1,4 +1,4 @@
-import numpy as np
+import cupy as np
 
 def gradient_descent(dW1: np.ndarray, dW2: np.ndarray, dW3: np.ndarray, db1: np.ndarray, db2: np.ndarray, db3: np.ndarray, W1: np.ndarray, W2: np.ndarray, W3: np.ndarray, b1: np.ndarray, b2: np.ndarray, b3: np.ndarray, F1: np.ndarray, b_conv: np.ndarray, dF1: np.ndarray, db_conv: np.ndarray, learning_rate: float):
     # Calculate new weights

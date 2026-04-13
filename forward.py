@@ -1,5 +1,6 @@
-import numpy as np
+import cupy as np
 from activations import ReLU, Softmax
+from network import im2col
 
 # Forward pass functions
 def conv_forward(input_data, filters, biases):
@@ -61,3 +62,28 @@ def softmax_forward(input_data):
     cache = probabilities
 
     return probabilities, cache
+
+def convolution_forward_vectorized(X, W, b, stride = 1, pad = 0):
+    m, c, h, w = X.shape
+    num_filters, _, f_h, f_w = W.shape
+
+    out_h = (h + 2 * pad - f_h) // stride + 1
+    out_w = (w + 2 * pad - f_w) // stride + 1
+
+    # 1. Flatten the entire batch of images into columns
+    X_col = im2col(X, f_h, f_w, stride, pad)
+
+    # 2. Flatten all filters into rows
+    W_row = W.reshape(num_filters, -1)
+
+    # 3. The Magic: One massive GPU matrix multiplication
+    out = W_row @ X_col + b
+
+    # 4. Reshape the flat output back into standard image shapes
+    out = out.reshape(num_filters, out_h, out_w, m)
+    out = out.transpose(3, 0, 1, 2)
+
+    # Cache the column matrix; we need it to make backprop fast!
+    cache = (X, W, b, stride, pad, X_col)
+
+    return out, cache

@@ -1,4 +1,6 @@
-import numpy as np
+import cupy as np
+
+from network import col2im
 
 # Backward pass functions (Backpropagation)
 # Grad stands for gradient aka derivative
@@ -71,3 +73,17 @@ def backpropagation_softmax(true_labels, cache):
     grad_input = (probabilities - true_labels) / m
 
     return grad_input
+
+def backpropagation_vectorized(dout, cache):
+    X, W, b, stride, pad, X_col = cache
+    num_filters, _, f_h, f_w = W.shape
+
+    # 1. Gradients for Biases
+    db = np.sum(dout, axis=(0, 2, 3)).reshape(num_filters, -1)
+
+    # 2. Gradients for Weights (Filters)
+    dout_reshaped = dout.transpose(1, 2, 3, 0).reshape(num_filters, -1)
+    dW = dout_reshaped @ X_col.T
+    dW = dW.reshape(W.shape)
+
+    return dW, db

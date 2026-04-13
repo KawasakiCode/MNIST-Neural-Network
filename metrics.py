@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 def plot_training_curves(loss_history, accuracy_history):
     """

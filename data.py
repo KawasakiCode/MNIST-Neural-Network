@@ -1,4 +1,4 @@
-import numpy as np
+import cupy as np
 
 def load_and_prep_data(filepath):
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
