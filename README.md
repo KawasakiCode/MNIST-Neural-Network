@@ -16,20 +16,32 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Details:** Increased the "memory" of the network to see if a wider layer could break the 90% barrier. 
 * **Result:** Accuracy remained stagnant at **~89%**. Learned that simply adding capacity doesn't solve fundamental structural limitations; the network became better at memorizing but not necessarily better at generalizing the core concepts of digits.
 
-### Step 3: Going Deep (Current State)
+### Step 3: Going Deep
 * **Architecture:** 2 Hidden Layers (128 nodes $\rightarrow$ 128 nodes).
 * **Details:** Transitioned from a Multi-Layer Perceptron to true Deep Learning. 
     * Implemented **He Initialization** (`np.random.randn(...) * np.sqrt(2.0 / inputs)`) to prevent variance explosion and dead neurons across multiple layers.
     * Derived and applied the **Chain Rule** twice to pull error gradients back through the middle layer.
 * **Result:** Broke the barrier and achieved **~91% Test Accuracy**. The deep architecture successfully learned hierarchical, abstract representations of the numbers.
 
+### Step 4 (Current stage)
+* **Architecture:** CNN (8 Filters $3 \times 3 \rightarrow$ Flatten $\rightarrow$ 128 nodes $\rightarrow$ 128 nodes $\rightarrow$ 10 nodes).
+* **Details:** Cured the network's "Spatial Blindness" by replacing the raw pixel inputs with a 2D mathematical "magnifying glass."
+    * Implemented Convolutional Filters to scan the image for spatial features (edges, loops, curves) before passing them to the dense layers.
+    * Developed vectorized im2col (Image to Column) math to convert slow, nested sliding-window loops into high-speed matrix multiplications.
+    * Integrated CuPy for GPU acceleration and optimized RAM usage, cutting training time from an estimated year down to minutes.
+* **Result:** Achieved 97.20% Training Accuracy and 96.67% Test Accuracy. The network successfully reshaped its loss landscape, finding a much deeper local minimum by learning actual geometric features instead of memorizing pixel coordinates.
+
+
+
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
 * **Dimensionality:** Mastered matrix alignment—ensuring weights, biases, and dot products flow seamlessly backward and forward.
 * **Optimization vs. Capacity:** Learned that falling into local minima of the loss function cannot always be fixed by throwing more nodes at the problem.
+* **Spacial Invariance:** Learned how Parameter Sharing (using the same $3 \times 3$ filter weights across the whole image) allows the model to recognize a digit regardless of its position.
+* **Hardware & Memory Management:** Discovered that software performance is heavily dictated by memory leaks, garbage collection, and how efficiently data is batched to the GPU.
 
-## Roadmap: Step 4 (The Next Evolution)
-The current Multi-Layer Perceptron is suffering from **Spatial Blindness**. By flattening a 2D image into a 1D array, the network loses all spatial relationships between pixels (curves, edges, and loops). 
+## Roadmap: Step 5 (The Next Evolution)
+The current CNN has proven the power of feature extraction, but it can be optimized further to push toward the 99% accuracy threshold.
 
-**Next Step:** Implement a **Convolutional Neural Network (CNN)**.
-Instead of connecting every pixel to every node, the next evolution will build a 2D mathematical "magnifying glass" (convolutional filters) to scan the image for spatial features, with the goal of breaking the **95%+ accuracy barrier**.
+# Next Step: Implement Max Pooling and Data Augmentation.
+Instead of passing every single convolution pixel forward, the next evolution will add pooling layers to shrink the spatial dimensions, making the network even more resilient to shifted or distorted digits. Introducing data augmentation (slightly rotating or shifting training images) will artificially expand the dataset and prevent overfitting.
