@@ -1,8 +1,8 @@
 import cupy as np
 from data import load_and_prep_data
 from network import initialize_weights_biases, initialize_cnn_filters
-from forward import conv_forward, convolution_forward_vectorized, linear_forward, relu_forward, flatten_forward, softmax_forward
-from backpropagation import backpropagation_conv, backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward
+from forward import convolution_forward_vectorized, linear_forward, relu_forward, flatten_forward, softmax_forward
+from backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward
 from losses import Categorical_Cross_Entropy
 from optimizers import gradient_descent
 

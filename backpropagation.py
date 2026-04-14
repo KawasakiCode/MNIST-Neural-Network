@@ -1,7 +1,5 @@
 import cupy as np
 
-from network import col2im
-
 # Backward pass functions (Backpropagation)
 # Grad stands for gradient aka derivative
 

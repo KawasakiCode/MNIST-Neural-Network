@@ -30,6 +30,9 @@ def initialize_cnn_filters(num_filters: int):
     return F1, b_conv
 
 # Functions used to skip python for loops in the convolutional layer to make the process faster
+# Stride is the step of the filter. In this case the filter moves 1 pixel to the right every time 
+# Filter now sees only 26x26 pixels of the image so it doesnt hang off the edge
+# By making pad = 1 we make this 28x28 so it sees the whole image
 def get_indices(X_shape, f_h, f_w, stride = 1, pad = 0):
     m, c, h, w = X_shape
     out_h = (h + 2 * pad - f_h) // stride + 1
@@ -41,6 +44,11 @@ def get_indices(X_shape, f_h, f_w, stride = 1, pad = 0):
     j0 = np.tile(np.arange(f_w), f_h * c)
     j1 = stride * np.tile(np.arange(out_w), out_h)
 
+    # i is a 9x676 array containing all row coordinates for every pixel of each one of 
+    # the possible 676 filters. So i[0][0] would be the row coordinate of the top left pixel
+    # of the first possible filter. j is the same but for columns
+    # k is the channel (depth) coordinate. In this case its a 9x1 matrix with 9 zeros
+    # But in a colored photo with RGB there would be 3 channels and k would be a 27x1
     i = i0.reshape(-1, 1) + i1.reshape(1, -1)
     j = j0.reshape(-1, 1) + j1.reshape(1, -1)
     k = np.repeat(np.arange(c), f_h * f_w).reshape(-1, 1)
@@ -53,11 +61,18 @@ def im2col(X, f_h, f_w, stride=1, pad=0):
     k, i, j = get_indices(X.shape, f_h, f_w, stride, pad)
 
     # Grab all overlapping patches simultaneously using advanced slicing
+    # cols here is essentialy all the filters of all the images of the batch
+    # In the end cols is of shape (64, 9, 676)
+    # .transpose makes it a (9, 676, 64) shape 
+    # and .reshape makes is a (9, 43264)
     cols = X_padded[:, k, i, j]
     c = X.shape[1]
     cols = cols.transpose(1, 2, 0).reshape(c * f_h * f_w, -1)
     return cols
 
+# col2im is only used in backpropagation to calculate the derivative of the layer
+# since the convolutional layer in this network is first we don't need that derivative so 
+# we don't use it
 def col2im(cols, X_shape, f_h, f_w, stride=1, pad=0):
     # Reconstructs the gradients back into image shapes for backprop
     m, c, h, w = X_shape
