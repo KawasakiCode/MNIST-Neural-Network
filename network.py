@@ -18,7 +18,28 @@ def initialize_weights_biases(hidden_layer_nodes: int):
     b2 = np.zeros((1, hidden_layer_nodes))
     b3 = np.zeros((1, 10))
 
-    return W1, W2, W3, b1, b2, b3
+    # Adam m Matrices (Exponentially Weighted Moving Average)
+    adam_W1_m = np.zeros(5408, hidden_layer_nodes)
+    adam_W2_m = np.zeros(hidden_layer_nodes, hidden_layer_nodes)
+    adam_W3_m = np.zeros(hidden_layer_nodes, 10)
+
+    adam_b1_m = np.zeros(1, hidden_layer_nodes)
+    adam_b2_m = np.zeros(1, hidden_layer_nodes)
+    adam_b3_m = np.zeros((1, 10))
+
+    # Adam u Matrices (Exponentially Weighted Moving Average squared)
+    adam_W1_u = np.zeros(5408, hidden_layer_nodes)
+    adam_W2_u = np.zeros(hidden_layer_nodes, hidden_layer_nodes)
+    adam_W3_u = np.zeros(hidden_layer_nodes, 10)
+
+    adam_b1_u = np.zeros(1, hidden_layer_nodes)
+    adam_b2_u = np.zeros(1, hidden_layer_nodes)
+    adam_b3_u = np.zeros((1, 10))
+
+    adam_m = {adam_W1_m, adam_W2_m, adam_W3_m, adam_b1_m, adam_b2_m, adam_b3_m}
+    adam_u = {adam_W1_u, adam_W2_u, adam_W3_u, adam_b1_u, adam_b2_u, adam_b3_u}
+
+    return W1, W2, W3, b1, b2, b3, adam_m, adam_u
 
 def initialize_cnn_filters(num_filters: int):
     #F1 refers to filter 1 and replaces W1
@@ -27,7 +48,16 @@ def initialize_cnn_filters(num_filters: int):
     #One bias number per filter so 8 bias
     b_conv = np.zeros((num_filters, 1))
 
-    return F1, b_conv
+    adam_F1_m = np.zeros((num_filters, 1, 3, 3))
+    adam_b_conv_m = np.zeros((num_filters, 1))
+
+    adam_F1_u = np.zeros((num_filters, 1, 3, 3))
+    adam_b_conv_u = np.zeros((num_filters, 1))
+
+    adam_m = {adam_F1_m, adam_b_conv_m}
+    adam_u = {adam_F1_u, adam_b_conv_u}
+
+    return F1, b_conv, adam_m, adam_u
 
 # Functions used to skip python for loops in the convolutional layer to make the process faster
 # Stride is the step of the filter. In this case the filter moves 1 pixel to the right every time 

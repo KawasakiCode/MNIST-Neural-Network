@@ -17,3 +17,8 @@ def gradient_descent(dW1: np.ndarray, dW2: np.ndarray, dW3: np.ndarray, db1: np.
 
 
     return W1_new, W2_new, W3_new, b1_new, b2_new, b3_new, F1_new, b_conv_new
+
+def Adam(adam_memory, gradients, parameters):
+    lr, b1_momentum, b2_scaling_decay, e, t = adam_memory
+    dW1, dW2, dW3, db1, db2, db3, dF1, b_conv = gradients 
+    W1, W2, W3, F1, b1, b2, b3, b_conv = parameters
