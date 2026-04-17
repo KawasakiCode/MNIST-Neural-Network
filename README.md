@@ -31,6 +31,10 @@ This network was built iteratively, starting from a basic mathematical foundatio
     * Integrated CuPy for GPU acceleration and optimized RAM usage, cutting training time from an estimated year down to minutes.
 * **Result:** Achieved 97.20% Training Accuracy and 96.67% Test Accuracy. The network successfully reshaped its loss landscape, finding a much deeper local minimum by learning actual geometric features instead of memorizing pixel coordinates.
 
+### Step 5: Adam Optimizer & Learning Rate Decay
+* **Architecture:** Same network with Adam optimizer instead of SGD
+* **Details:** In this phase, we upgraded the learning engine from standard Gradient Descent to a custom-built Adam Optimizer. By tracking both the exponentially weighted moving average of the gradients (momentum/velocity) and the squared gradients (friction), the network dynamically customizes the learning rate for every individual weight and bias. To prevent overshooting at the absolute bottom of the loss valley, we also implemented Learning Rate Step Decay to progressively shrink the step size during the final epochs.
+* **Result:** Achieved 99.95% Training Accuracy and 98.09% Test Accuracy. This performance effectively hits the mathematical ceiling for a standard Convolutional Neural Network architecture on this dataset, demonstrating robust feature extraction with only a minor generalization gap left to solve via regularization.
 
 
 ## Key Technical Learnings
@@ -40,7 +44,7 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Spacial Invariance:** Learned how Parameter Sharing (using the same $3 \times 3$ filter weights across the whole image) allows the model to recognize a digit regardless of its position.
 * **Hardware & Memory Management:** Discovered that software performance is heavily dictated by memory leaks, garbage collection, and how efficiently data is batched to the GPU.
 
-## Roadmap: Step 5 (The Next Evolution)
+## Roadmap: Step 6 (The Next Evolution)
 The current CNN has proven the power of feature extraction, but it can be optimized further to push toward the 99% accuracy threshold.
 
 # Next Step: Implement Max Pooling and Data Augmentation.

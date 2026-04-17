@@ -68,4 +68,4 @@ for i in range(0, num_samples, batch_size):
     true_labels = np.argmax(Y_batch, axis=1)
     total_correct += int(np.sum(final_prediction == true_labels).get())
 
-print(f"Testing finished. Final results: Accuracy: {total_correct/X_test.shape[0] * 100:.4f}%")
+print(f"Testing finished. Final results: Accuracy: {total_correct/X_test.shape[0] * 100:.2f}%")

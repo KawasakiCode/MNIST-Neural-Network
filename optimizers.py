@@ -18,7 +18,21 @@ def gradient_descent(dW1: np.ndarray, dW2: np.ndarray, dW3: np.ndarray, db1: np.
 
     return W1_new, W2_new, W3_new, b1_new, b2_new, b3_new, F1_new, b_conv_new
 
-def Adam(adam_memory, gradients, parameters):
-    lr, b1_momentum, b2_scaling_decay, e, t = adam_memory
-    dW1, dW2, dW3, db1, db2, db3, dF1, b_conv = gradients 
-    W1, W2, W3, F1, b1, b2, b3, b_conv = parameters
+def Adam(adam_memory, gradients, parameters, adam_m, adam_u):
+    lr, b1_momentum, b2_scaling, e, t = adam_memory
+
+    for i in range(len(parameters)):
+        # Update m (Velocity)
+        adam_m[i] = b1_momentum *  adam_m[i] + (1 - b1_momentum) * gradients[i]
+        # Update u (Friction)
+        adam_u[i] = b2_scaling * adam_u[i] + (1 - b2_scaling) * (gradients[i] ** 2)
+        # Apply bias correction
+        m_hat = adam_m[i] / (1 - b1_momentum ** t)
+        u_hat = adam_u[i] / (1 - b2_scaling ** t)
+        # Final Parameter Update
+        parameters[i] = parameters[i] - lr * (m_hat / (np.sqrt(u_hat) + e))
+
+    return parameters, adam_m, adam_u
+
+
+
