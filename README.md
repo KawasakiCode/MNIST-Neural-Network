@@ -23,7 +23,7 @@ This network was built iteratively, starting from a basic mathematical foundatio
     * Derived and applied the **Chain Rule** twice to pull error gradients back through the middle layer.
 * **Result:** Broke the barrier and achieved **~91% Test Accuracy**. The deep architecture successfully learned hierarchical, abstract representations of the numbers.
 
-### Step 4 (Current stage)
+### Step 4
 * **Architecture:** CNN (8 Filters $3 \times 3 \rightarrow$ Flatten $\rightarrow$ 128 nodes $\rightarrow$ 128 nodes $\rightarrow$ 10 nodes).
 * **Details:** Cured the network's "Spatial Blindness" by replacing the raw pixel inputs with a 2D mathematical "magnifying glass."
     * Implemented Convolutional Filters to scan the image for spatial features (edges, loops, curves) before passing them to the dense layers.
