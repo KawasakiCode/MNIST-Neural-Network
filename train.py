@@ -63,10 +63,24 @@ for epoch in range(30):
     batch_in_epoch = 0
 
     for i in range(0, num_samples, batch_size):
-        indices = permutation[i : i+batch_size]
-        X_batch = X_train_shuffled[indices]
-        Y_batch = Y_train_shuffled[indices]
-        
+        X_batch = X_train_shuffled[i : i + batch_size]
+        Y_batch = Y_train_shuffled[i : i + batch_size]
+
+        # Data augmentation (Translation: pixel shifting)
+        for j in range(X_batch.shape[0]):
+            temp_matrix = np.zeros((28, 28))
+            shift_y = np.random.randint(-2, 3)
+            shift_x = np.random.randint(-2, 3)
+            if shift_y >= 0 and shift_x >= 0:
+                temp_matrix[shift_y:28, shift_x:28] = X_batch[j, 0, 0:28-shift_y, 0:28-shift_x]
+            elif shift_y > 0 and shift_x < 0:
+                temp_matrix[shift_y:28, 0:28+shift_x] = X_batch[j, 0, 0:28-shift_y, abs(shift_x):28]
+            elif shift_y < 0 and shift_x >= 0:
+                temp_matrix[0:28+shift_y, shift_x:28] = X_batch[j, 0, abs(shift_y):28, 0:28-shift_x]
+            elif shift_y < 0 and shift_x < 0:
+                temp_matrix[0:28+shift_y, 0:28+shift_x] = X_batch[j, 0, abs(shift_y):28, abs(shift_x):28]
+            X_batch[j, 0] = temp_matrix
+            
         # Pass the data through the convolutional layer
         conv_output_data, conv_cache = convolution_forward_vectorized(X_batch, F1, b_conv, stride = 1, pad = 0)
         flattened_data, flatten_cache = flatten_forward(conv_output_data)
