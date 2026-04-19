@@ -38,7 +38,7 @@ This network was built iteratively, starting from a basic mathematical foundatio
 
 ### Step 6: Data Augmentation
 * **Architecture:** Same network as Step 5 with data augmentation
-* **Details:** 
+* **Details:** In this phase, we tackled overfitting by implementing a custom, purely mathematical data augmentation engine. To prevent the network from memorizing static pixel coordinates, we introduced randomized horizontal and vertical pixel shifts (Translations) to the batches immediately before the forward pass. Using independent X and Y matrix slicing and coordinate logic, we dynamically shifted the matrices and padded them with zero-value (black) pixels. Because the images are augmented "on-the-fly," the network never sees the exact same image twice, forcing it to learn universal geometric shapes rather than positional anomalies.
 * **Result:** Achieved 91.94% Training Accuracy and 98.59% Test Accuracy. This solved the problem of overfitting which means that the network no longer memorises the data set but actually learning on it. The higher testing accuracy is the byproduct of this learning.
 
 ## Key Technical Learnings
