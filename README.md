@@ -36,6 +36,10 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Details:** In this phase, we upgraded the learning engine from standard Gradient Descent to a custom-built Adam Optimizer. By tracking both the exponentially weighted moving average of the gradients (momentum/velocity) and the squared gradients (friction), the network dynamically customizes the learning rate for every individual weight and bias. To prevent overshooting at the absolute bottom of the loss valley, we also implemented Learning Rate Step Decay to progressively shrink the step size during the final epochs.
 * **Result:** Achieved 99.95% Training Accuracy and 98.09% Test Accuracy. This performance effectively hits the mathematical ceiling for a standard Convolutional Neural Network architecture on this dataset, demonstrating robust feature extraction with only a minor generalization gap left to solve via regularization.
 
+### Step 6: Data Augmentation
+* **Architecture:** Same network as Step 5 with data augmentation
+* **Details:** 
+* **Result:** Achieved 91.94% Training Accuracy and 98.59% Test Accuracy. This solved the problem of overfitting which means that the network no longer memorises the data set but actually learning on it. The higher testing accuracy is the byproduct of this learning.
 
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
@@ -44,8 +48,8 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Spacial Invariance:** Learned how Parameter Sharing (using the same $3 \times 3$ filter weights across the whole image) allows the model to recognize a digit regardless of its position.
 * **Hardware & Memory Management:** Discovered that software performance is heavily dictated by memory leaks, garbage collection, and how efficiently data is batched to the GPU.
 
-## Roadmap: Step 6 (The Next Evolution)
+## Roadmap: Step 7 (The Next Evolution)
 The current CNN has proven the power of feature extraction, but it can be optimized further to push toward the 99% accuracy threshold.
 
-# Next Step: Implement Max Pooling and Data Augmentation.
-Instead of passing every single convolution pixel forward, the next evolution will add pooling layers to shrink the spatial dimensions, making the network even more resilient to shifted or distorted digits. Introducing data augmentation (slightly rotating or shifting training images) will artificially expand the dataset and prevent overfitting.
+# Next Step: Implement Max Pooling and Dropout Regularization.
+Instead of passing every single convolution pixel forward, the next evolution will add pooling layers to shrink the spatial dimensions, making the network even more resilient to shifted or distorted digits. Introducing dropout regularization. Artifically turn off a random % of the neurons of the network to force some "lazy" neurons to wake up and work.
