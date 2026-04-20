@@ -62,6 +62,7 @@ for epoch in range(30):
     epoch_accuracy = 0
     batch_in_epoch = 0
 
+
     for i in range(0, num_samples, batch_size):
         X_batch = X_train_shuffled[i : i + batch_size]
         Y_batch = Y_train_shuffled[i : i + batch_size]
@@ -80,7 +81,9 @@ for epoch in range(30):
             elif shift_y < 0 and shift_x < 0:
                 temp_matrix[0:28+shift_y, 0:28+shift_x] = X_batch[j, 0, abs(shift_y):28, abs(shift_x):28]
             X_batch[j, 0] = temp_matrix
-            
+        
+        
+
         # Pass the data through the convolutional layer
         conv_output_data, conv_cache = convolution_forward_vectorized(X_batch, F1, b_conv, stride = 1, pad = 0)
         flattened_data, flatten_cache = flatten_forward(conv_output_data)
@@ -88,11 +91,21 @@ for epoch in range(30):
         # Pass through first hidden layer
         dense1_output, dense1_cache = relu_forward(flattened_data, W1, b1)
 
+        random_matrix_dense1 = np.random.rand(*dense1_output.shape)
+        mask_dense1 = random_matrix_dense1 < 0.8
+
+        new_dense1_output = (dense1_output * mask_dense1) / 0.8
+
         # Pass through second hidden layer
-        dense2_output, dense2_cache = relu_forward(dense1_output, W2, b2)
+        dense2_output, dense2_cache = relu_forward(new_dense1_output, W2, b2)
+
+        random_matrix_dense2 = np.random.rand(*dense2_output.shape)
+        mask_dense2 = random_matrix_dense2 < 0.8
+
+        new_dense2_output = (dense2_output * mask_dense2) / 0.8
 
         # Output layer (Predictions)
-        dense3_output, dense3_cache = linear_forward(dense2_output, W3, b3)
+        dense3_output, dense3_cache = linear_forward(new_dense2_output, W3, b3)
         predictions, softmax_cache = softmax_forward(dense3_output)
 
         # Accuracy Prediction
@@ -116,11 +129,15 @@ for epoch in range(30):
         #Second hidden layer error
         grad_dense2_out, grad_W2, grad_b2 = backpropagation_relu(grad_dense3_out, dense2_cache)
 
+        new_grad_dense2 = (grad_dense2_out * mask_dense2) / 0.8
+
         #Hidden layer error
-        grad_dense1_out, grad_W1, grad_b1 = backpropagation_relu(grad_dense2_out, dense1_cache)
+        grad_dense1_out, grad_W1, grad_b1 = backpropagation_relu(new_dense2_output, dense1_cache)
+
+        new_grad_dense1 = (grad_dense1_out * mask_dense1) / 0.8
 
         #Unflatten first hidden layer error
-        grad_unflatten = backpropagation_unflatten(grad_dense1_out, flatten_cache)
+        grad_unflatten = backpropagation_unflatten(new_grad_dense1, flatten_cache)
 
         #Convolutional layer error
         grad_F1, grad_b_conv = backpropagation_vectorized(grad_unflatten, conv_cache)
