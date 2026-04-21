@@ -4,7 +4,7 @@ from network import initialize_weights_biases, initialize_cnn_filters
 from forward import convolution_forward_vectorized, linear_forward, relu_forward, flatten_forward, softmax_forward
 from backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward
 from losses import Categorical_Cross_Entropy
-from optimizers import Adam, gradient_descent
+from optimizers import Adam, SGD
 
 import gc
 
@@ -66,24 +66,40 @@ for epoch in range(30):
     for i in range(0, num_samples, batch_size):
         X_batch = X_train_shuffled[i : i + batch_size]
         Y_batch = Y_train_shuffled[i : i + batch_size]
-
+        
         # Data augmentation (Translation: pixel shifting)
-        for j in range(X_batch.shape[0]):
-            temp_matrix = np.zeros((28, 28))
-            shift_y = np.random.randint(-2, 3)
-            shift_x = np.random.randint(-2, 3)
-            if shift_y >= 0 and shift_x >= 0:
-                temp_matrix[shift_y:28, shift_x:28] = X_batch[j, 0, 0:28-shift_y, 0:28-shift_x]
-            elif shift_y > 0 and shift_x < 0:
-                temp_matrix[shift_y:28, 0:28+shift_x] = X_batch[j, 0, 0:28-shift_y, abs(shift_x):28]
-            elif shift_y < 0 and shift_x >= 0:
-                temp_matrix[0:28+shift_y, shift_x:28] = X_batch[j, 0, abs(shift_y):28, 0:28-shift_x]
-            elif shift_y < 0 and shift_x < 0:
-                temp_matrix[0:28+shift_y, 0:28+shift_x] = X_batch[j, 0, abs(shift_y):28, abs(shift_x):28]
-            X_batch[j, 0] = temp_matrix
-        
-        
+        shift_y = np.random.randint(-2, 3)
+        shift_x = np.random.randint(-2, 3)
 
+        X_batch_shifted = np.zeros_like(X_batch)
+
+        dest_y1 = max(0, shift_y)
+        dest_y2 = min(28, 28 + shift_y)
+        dest_x1 = max(0, shift_x)
+        dest_x2 = min(28, 28 + shift_x)
+
+        src_y1 = max(0, -shift_y)
+        src_y2 = min(28, 28 - shift_y)
+        src_x1 = max(0, -shift_x)
+        src_x2 = min(28, 28 - shift_x)
+
+        X_batch_shifted[:, :, dest_y1:dest_y2, dest_x1:dest_x2] = X_batch[:, :, src_y1:src_y2, src_x1:src_x2]
+
+        X_batch = X_batch_shifted
+        
+        # for j in range(X_batch.shape[0]):
+        #     temp_matrix = np.zeros((28, 28))
+            
+        #     if shift_y >= 0 and shift_x >= 0:
+        #         temp_matrix[shift_y:28, shift_x:28] = X_batch[j, 0, 0:28-shift_y, 0:28-shift_x]
+        #     elif shift_y > 0 and shift_x < 0:
+        #         temp_matrix[shift_y:28, 0:28+shift_x] = X_batch[j, 0, 0:28-shift_y, abs(shift_x):28]
+        #     elif shift_y < 0 and shift_x >= 0:
+        #         temp_matrix[0:28+shift_y, shift_x:28] = X_batch[j, 0, abs(shift_y):28, 0:28-shift_x]
+        #     elif shift_y < 0 and shift_x < 0:
+        #         temp_matrix[0:28+shift_y, 0:28+shift_x] = X_batch[j, 0, abs(shift_y):28, abs(shift_x):28]
+        #     X_batch[j, 0] = temp_matrix
+        
         # Pass the data through the convolutional layer
         conv_output_data, conv_cache = convolution_forward_vectorized(X_batch, F1, b_conv, stride = 1, pad = 0)
         flattened_data, flatten_cache = flatten_forward(conv_output_data)
@@ -99,13 +115,8 @@ for epoch in range(30):
         # Pass through second hidden layer
         dense2_output, dense2_cache = relu_forward(new_dense1_output, W2, b2)
 
-        random_matrix_dense2 = np.random.rand(*dense2_output.shape)
-        mask_dense2 = random_matrix_dense2 < 0.8
-
-        new_dense2_output = (dense2_output * mask_dense2) / 0.8
-
         # Output layer (Predictions)
-        dense3_output, dense3_cache = linear_forward(new_dense2_output, W3, b3)
+        dense3_output, dense3_cache = linear_forward(dense2_output, W3, b3)
         predictions, softmax_cache = softmax_forward(dense3_output)
 
         # Accuracy Prediction
@@ -129,15 +140,13 @@ for epoch in range(30):
         #Second hidden layer error
         grad_dense2_out, grad_W2, grad_b2 = backpropagation_relu(grad_dense3_out, dense2_cache)
 
-        new_grad_dense2 = (grad_dense2_out * mask_dense2) / 0.8
-
         #Hidden layer error
-        grad_dense1_out, grad_W1, grad_b1 = backpropagation_relu(new_dense2_output, dense1_cache)
+        new_grad_dense1 = (grad_dense2_out * mask_dense1) / 0.8
 
-        new_grad_dense1 = (grad_dense1_out * mask_dense1) / 0.8
+        grad_dense1_out, grad_W1, grad_b1 = backpropagation_relu(new_grad_dense1, dense1_cache)
 
         #Unflatten first hidden layer error
-        grad_unflatten = backpropagation_unflatten(new_grad_dense1, flatten_cache)
+        grad_unflatten = backpropagation_unflatten(grad_dense1_out, flatten_cache)
 
         #Convolutional layer error
         grad_F1, grad_b_conv = backpropagation_vectorized(grad_unflatten, conv_cache)

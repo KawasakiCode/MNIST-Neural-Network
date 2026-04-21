@@ -32,14 +32,19 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Result:** Achieved 97.20% Training Accuracy and 96.67% Test Accuracy. The network successfully reshaped its loss landscape, finding a much deeper local minimum by learning actual geometric features instead of memorizing pixel coordinates.
 
 ### Step 5: Adam Optimizer & Learning Rate Decay
-* **Architecture:** Same network with Adam optimizer instead of SGD
+* **Architecture:** Same network with Adam optimizer instead of SGD.
 * **Details:** In this phase, we upgraded the learning engine from standard Gradient Descent to a custom-built Adam Optimizer. By tracking both the exponentially weighted moving average of the gradients (momentum/velocity) and the squared gradients (friction), the network dynamically customizes the learning rate for every individual weight and bias. To prevent overshooting at the absolute bottom of the loss valley, we also implemented Learning Rate Step Decay to progressively shrink the step size during the final epochs.
 * **Result:** Achieved 99.95% Training Accuracy and 98.09% Test Accuracy. This performance effectively hits the mathematical ceiling for a standard Convolutional Neural Network architecture on this dataset, demonstrating robust feature extraction with only a minor generalization gap left to solve via regularization.
 
 ### Step 6: Data Augmentation
-* **Architecture:** Same network as Step 5 with data augmentation
+* **Architecture:** Same network as Step 5 with data augmentation.
 * **Details:** In this phase, we tackled overfitting by implementing a custom, purely mathematical data augmentation engine. To prevent the network from memorizing static pixel coordinates, we introduced randomized horizontal and vertical pixel shifts (Translations) to the batches immediately before the forward pass. Using independent X and Y matrix slicing and coordinate logic, we dynamically shifted the matrices and padded them with zero-value (black) pixels. Because the images are augmented "on-the-fly," the network never sees the exact same image twice, forcing it to learn universal geometric shapes rather than positional anomalies.
 * **Result:** Achieved 91.94% Training Accuracy and 98.59% Test Accuracy. This solved the problem of overfitting which means that the network no longer memorises the data set but actually learning on it. The higher testing accuracy is the byproduct of this learning.
+
+### Step 7: Dropout Regularization
+* **Architecture:** Same network as Step 6 but dropping 20% of first hidden layer's neurons.
+* **Details:** To further combat overfitting and prevent "lazy" neurons from relying heavily on specific weights, we implemented Inverted Dropout from scratch. By generating a random boolean mask during the forward pass, we intentionally deactivated a percentage of neurons in the hidden layers. The surviving neurons were mathematically scaled up by the keep probability to maintain signal balance. This exact mask was cached and used during backpropagation to freeze the gradients for the "dead" neurons, ensuring they were not penalized or rewarded for work they didn't do. During training we applied a 20% dropout to both the first and second dense layers. That caused testing accuracy to drop. Learned that applying dropout consecutively especially on smaller layers suffocates the network by destroying a large amount of the signal that was already fragmented causing the network to underfit the data.
+* **Results:** Achieved 97.15% Training Accuracy and 98.67% Testing Accuracy. The slight increase in testing accuracy proved that the dropout regularization of one layer is working properly. 
 
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
@@ -48,8 +53,8 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Spacial Invariance:** Learned how Parameter Sharing (using the same $3 \times 3$ filter weights across the whole image) allows the model to recognize a digit regardless of its position.
 * **Hardware & Memory Management:** Discovered that software performance is heavily dictated by memory leaks, garbage collection, and how efficiently data is batched to the GPU.
 
-## Roadmap: Step 7 (The Next Evolution)
+## Roadmap: Step 8 (The Next Evolution)
 The current CNN has proven the power of feature extraction, but it can be optimized further to push toward the 99% accuracy threshold.
 
-# Next Step: Implement Max Pooling and Dropout Regularization.
-Instead of passing every single convolution pixel forward, the next evolution will add pooling layers to shrink the spatial dimensions, making the network even more resilient to shifted or distorted digits. Introducing dropout regularization. Artifically turn off a random % of the neurons of the network to force some "lazy" neurons to wake up and work.
+# Next Step: Implement Max Pooling.
+Instead of passing every single convolution pixel forward, the next evolution will add pooling layers to shrink the spatial dimensions, making the network even more resilient to shifted or distorted digits.
