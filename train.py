@@ -1,5 +1,5 @@
 import cupy as np
-from data import load_and_prep_data
+from data import augment_data, load_and_prep_data
 from network import initialize_weights_biases, initialize_cnn_filters
 from forward import convolution_forward_vectorized, linear_forward, relu_forward, flatten_forward, softmax_forward
 from backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward
@@ -68,41 +68,15 @@ for epoch in range(30):
         Y_batch = Y_train_shuffled[i : i + batch_size]
         
         # Data augmentation (Translation: pixel shifting)
-        shift_y = np.random.randint(-2, 3)
-        shift_x = np.random.randint(-2, 3)
-
-        X_batch_shifted = np.zeros_like(X_batch)
-
-        dest_y1 = max(0, shift_y)
-        dest_y2 = min(28, 28 + shift_y)
-        dest_x1 = max(0, shift_x)
-        dest_x2 = min(28, 28 + shift_x)
-
-        src_y1 = max(0, -shift_y)
-        src_y2 = min(28, 28 - shift_y)
-        src_x1 = max(0, -shift_x)
-        src_x2 = min(28, 28 - shift_x)
-
-        X_batch_shifted[:, :, dest_y1:dest_y2, dest_x1:dest_x2] = X_batch[:, :, src_y1:src_y2, src_x1:src_x2]
-
-        X_batch = X_batch_shifted
-        
-        # for j in range(X_batch.shape[0]):
-        #     temp_matrix = np.zeros((28, 28))
-            
-        #     if shift_y >= 0 and shift_x >= 0:
-        #         temp_matrix[shift_y:28, shift_x:28] = X_batch[j, 0, 0:28-shift_y, 0:28-shift_x]
-        #     elif shift_y > 0 and shift_x < 0:
-        #         temp_matrix[shift_y:28, 0:28+shift_x] = X_batch[j, 0, 0:28-shift_y, abs(shift_x):28]
-        #     elif shift_y < 0 and shift_x >= 0:
-        #         temp_matrix[0:28+shift_y, shift_x:28] = X_batch[j, 0, abs(shift_y):28, 0:28-shift_x]
-        #     elif shift_y < 0 and shift_x < 0:
-        #         temp_matrix[0:28+shift_y, 0:28+shift_x] = X_batch[j, 0, abs(shift_y):28, abs(shift_x):28]
-        #     X_batch[j, 0] = temp_matrix
+        X_batch = augment_data(X_batch)
         
         # Pass the data through the convolutional layer
         conv_output_data, conv_cache = convolution_forward_vectorized(X_batch, F1, b_conv, stride = 1, pad = 0)
-        flattened_data, flatten_cache = flatten_forward(conv_output_data)
+        conv_relu, conv_relu_cache = relu_forward(conv_output_data, F1, b_conv)
+
+        max_pool_out,  max_pool_cache = max_pool_forward(conv_relu)
+
+        flattened_data, flatten_cache = flatten_forward(max_pool_out)
 
         # Pass through first hidden layer
         dense1_output, dense1_cache = relu_forward(flattened_data, W1, b1)
@@ -148,8 +122,12 @@ for epoch in range(30):
         #Unflatten first hidden layer error
         grad_unflatten = backpropagation_unflatten(grad_dense1_out, flatten_cache)
 
+        #Max Pool error
+        grad_max_pool = max_pool_backpropagation(grad_unflatten, max_pool_cache)
+        grad_relu_conv = backpropagation_relu(grad_max_pool, conv_relu_cache)
+
         #Convolutional layer error
-        grad_F1, grad_b_conv = backpropagation_vectorized(grad_unflatten, conv_cache)
+        grad_F1, grad_b_conv = backpropagation_vectorized(grad_relu_conv, conv_cache)
 
         t += 1
         adam_memory = [lr, b1_momentum, b2_scaling, e, t]
