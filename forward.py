@@ -87,3 +87,17 @@ def convolution_forward_vectorized(X, W, b, stride = 1, pad = 0):
     cache = (X, W, b, stride, pad, X_col)
 
     return out, cache
+
+def max_pool_forward(input_data):
+    max_pool_blocks = np.reshape(input_data, (64, input_data.shape[1], 14, 2, 14, 2))
+    max_blocks = np.max(max_pool_blocks, axis = (3, 5))
+
+    max_blocks_expanded = np.reshape(max_blocks, (64, input_data.shape[1], 14, 14))
+
+    expanded_max = np.reshape(max_blocks, (64, input_data.shape[1], 14, 1, 14, 1))
+    mask = max_pool_blocks == expanded_max
+    final = np.reshape(mask, (64, input_data.shape[1], 28, 28))
+
+    max_pool_cache = max_blocks_expanded, mask
+
+    return final, max_pool_cache
