@@ -85,3 +85,22 @@ def backpropagation_vectorized(dout, cache):
     dW = dW.reshape(W.shape)
 
     return dW, db
+
+def max_pool_backpropagation(grad_output, cache):
+    mask = cache
+
+    height_grad_unflatten = np.repeat(grad_output, 2, axis = 2)
+    width_grad_unflatten = np.repeat(height_grad_unflatten, 2, axis = 3)
+
+    output = mask * width_grad_unflatten
+
+    return output
+
+def relu_conv_backward(grad_output, cache):
+    input_data, weights, pre_activation = cache
+
+    mask = pre_activation > 0
+    grad = grad_output * mask
+
+    return grad
+

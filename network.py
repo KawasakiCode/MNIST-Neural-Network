@@ -10,7 +10,9 @@ def initialize_weights_biases(hidden_layer_nodes: int):
     #Use 5408 and not 784 because W1 wont interact with the original
     #pixel values but the the flatten_output of the convolutional
     #layer which is of shape (60000, 5408)
-    W1 = np.random.randn(5408, hidden_layer_nodes) * np.sqrt(2.0 / 5408)
+    #With max pool added W1 gets 1352 so its of shape (64, 1352) per batch
+    input_nodes = 1352
+    W1 = np.random.randn(input_nodes, hidden_layer_nodes) * np.sqrt(2.0 / input_nodes)
     W2 = np.random.randn(hidden_layer_nodes, hidden_layer_nodes) * np.sqrt(2.0 / hidden_layer_nodes)
     W3 = np.random.randn(hidden_layer_nodes, 10) * np.sqrt(2.0 / hidden_layer_nodes)
 
@@ -19,7 +21,7 @@ def initialize_weights_biases(hidden_layer_nodes: int):
     b3 = np.zeros((1, 10))
 
     # Adam m Matrices (Exponentially Weighted Moving Average)
-    adam_W1_m = np.zeros((5408, hidden_layer_nodes))
+    adam_W1_m = np.zeros((input_nodes, hidden_layer_nodes))
     adam_W2_m = np.zeros((hidden_layer_nodes, hidden_layer_nodes))
     adam_W3_m = np.zeros((hidden_layer_nodes, 10))
 
@@ -28,7 +30,7 @@ def initialize_weights_biases(hidden_layer_nodes: int):
     adam_b3_m = np.zeros((1, 10))
 
     # Adam u Matrices (Exponentially Weighted Moving Average squared)
-    adam_W1_u = np.zeros((5408, hidden_layer_nodes))
+    adam_W1_u = np.zeros((input_nodes, hidden_layer_nodes))
     adam_W2_u = np.zeros((hidden_layer_nodes, hidden_layer_nodes))
     adam_W3_u = np.zeros((hidden_layer_nodes, 10))
 

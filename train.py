@@ -1,8 +1,9 @@
 import cupy as np
+from activations import ReLU
 from data import augment_data, load_and_prep_data
 from network import initialize_weights_biases, initialize_cnn_filters
 from forward import convolution_forward_vectorized, linear_forward, max_pool_forward, relu_forward, flatten_forward, softmax_forward
-from backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward
+from backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward, max_pool_backpropagation, relu_conv_backward
 from losses import Categorical_Cross_Entropy
 from optimizers import Adam, SGD
 
@@ -72,7 +73,8 @@ for epoch in range(30):
         
         # Pass the data through the convolutional layer
         conv_output_data, conv_cache = convolution_forward_vectorized(X_batch, F1, b_conv, stride = 1, pad = 0)
-        conv_relu, conv_relu_cache = relu_forward(conv_output_data, F1, b_conv)
+        conv_relu = ReLU(conv_output_data)
+        conv_relu_cache = (conv_relu, F1, conv_output_data)
 
         max_pool_out,  max_pool_cache = max_pool_forward(conv_relu)
 
@@ -124,7 +126,7 @@ for epoch in range(30):
 
         #Max Pool error
         grad_max_pool = max_pool_backpropagation(grad_unflatten, max_pool_cache)
-        grad_relu_conv = backpropagation_relu(grad_max_pool, conv_relu_cache)
+        grad_relu_conv = relu_conv_backward(grad_max_pool, conv_relu_cache)
 
         #Convolutional layer error
         grad_F1, grad_b_conv = backpropagation_vectorized(grad_relu_conv, conv_cache)

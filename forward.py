@@ -76,28 +76,35 @@ def convolution_forward_vectorized(X, W, b, stride = 1, pad = 0):
     # 2. Flatten all filters into rows
     W_row = W.reshape(num_filters, -1)
 
-    # 3. The Magic: One massive GPU matrix multiplication
+    # 3. One massive GPU matrix multiplication
     out = W_row @ X_col + b
 
     # 4. Reshape the flat output back into standard image shapes
     out = out.reshape(num_filters, out_h, out_w, m)
     out = out.transpose(3, 0, 1, 2)
 
-    # Cache the column matrix; we need it to make backprop fast!
+    # Cache the column matrix, we need it to make backprop
     cache = (X, W, b, stride, pad, X_col)
 
     return out, cache
 
 def max_pool_forward(input_data):
-    max_pool_blocks = np.reshape(input_data, (64, input_data.shape[1], 14, 2, 14, 2))
-    max_blocks = np.max(max_pool_blocks, axis = (3, 5))
+    # Create the 2x2 max pool blocks by adding extra dimensions and transposing them
+    max_pool_blocks = np.reshape(input_data, (input_data.shape[0], input_data.shape[1], 13, 2, 13, 2))
+    max_pool_blocks_transposed = np.transpose(max_pool_blocks, (0, 1, 2, 4, 3, 5))
 
-    max_blocks_expanded = np.reshape(max_blocks, (64, input_data.shape[1], 14, 14))
+    # For each 2x2 block get the pixel with the max value only
+    max_values = np.max(max_pool_blocks_transposed, axis = (4, 5))
 
-    expanded_max = np.reshape(max_blocks, (64, input_data.shape[1], 14, 1, 14, 1))
-    mask = max_pool_blocks == expanded_max
-    final = np.reshape(mask, (64, input_data.shape[1], 28, 28))
+    # Expand the max values and compare them with the original pixel values
+    # keeping 1 where the value matches (in the max position) and 0 everywhere else
+    expanded_max = np.reshape(max_values, (input_data.shape[0], input_data.shape[1], 13, 13, 1, 1))
+    mask = max_pool_blocks_transposed == expanded_max
 
-    max_pool_cache = max_blocks_expanded, mask
+    # Reshape mask for the final matrix
+    mask_transposed = np.transpose(mask, (0, 1, 2, 4, 3, 5))
+    mask_final = np.reshape(mask_transposed, (input_data.shape[0], input_data.shape[1], 26, 26))
 
-    return final, max_pool_cache
+    max_pool_cache = mask_final
+
+    return max_values, max_pool_cache

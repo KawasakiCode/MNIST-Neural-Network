@@ -46,15 +46,14 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Details:** To further combat overfitting and prevent "lazy" neurons from relying heavily on specific weights, we implemented Inverted Dropout from scratch. By generating a random boolean mask during the forward pass, we intentionally deactivated a percentage of neurons in the hidden layers. The surviving neurons were mathematically scaled up by the keep probability to maintain signal balance. This exact mask was cached and used during backpropagation to freeze the gradients for the "dead" neurons, ensuring they were not penalized or rewarded for work they didn't do. During training we applied a 20% dropout to both the first and second dense layers. That caused testing accuracy to drop. Learned that applying dropout consecutively especially on smaller layers suffocates the network by destroying a large amount of the signal that was already fragmented causing the network to underfit the data.
 * **Results:** Achieved 97.15% Training Accuracy and 98.67% Testing Accuracy. The slight increase in testing accuracy proved that the dropout regularization of one layer is working properly. 
 
+### Step 8: Max Pooling
+* **Architecture:** Added a Max Pooling layer after the convolutional one.
+* **Details:** The final architectural upgrade is the Max Pooling layer, which acts as a purely mathematical spatial crusher to isolate dominant features, grant translation invariance, and drastically reduce the parameter count for the upcoming Dense layers. In the forward pass, the flat memory of the 4D Convolutional output is carefully reshaped into 6 dimensions and transposed to physically group pixels into true spatial blocks, where the highest value is extracted and the rest are discarded. During the backward pass, the layer executes a "stretch and strike" maneuver, utilizing np.repeat to inflate the shrunken error gradient back to its original dimensions before multiplying it element-wise against the saved mask. This instantly zeroes out the error for the discarded pixels while perfectly routing the gradient back to the original maximum coordinates, securing the unbroken mathematical chain of your Convolutional Neural Network.
+* **Results:** Achieved 98.76% Training Accuracy and 99.31% Testing Accuracy. The network correctly used Max Pooling to reach it's ultimate potential breaking the 99+% testing accuracy. Max Pooling also slightly increased Training Accuracy.
+
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
 * **Dimensionality:** Mastered matrix alignment—ensuring weights, biases, and dot products flow seamlessly backward and forward.
 * **Optimization vs. Capacity:** Learned that falling into local minima of the loss function cannot always be fixed by throwing more nodes at the problem.
 * **Spacial Invariance:** Learned how Parameter Sharing (using the same $3 \times 3$ filter weights across the whole image) allows the model to recognize a digit regardless of its position.
 * **Hardware & Memory Management:** Discovered that software performance is heavily dictated by memory leaks, garbage collection, and how efficiently data is batched to the GPU.
-
-## Roadmap: Step 8 (The Next Evolution)
-The current CNN has proven the power of feature extraction, but it can be optimized further to push toward the 99% accuracy threshold.
-
-# Next Step: Implement Max Pooling.
-Instead of passing every single convolution pixel forward, the next evolution will add pooling layers to shrink the spatial dimensions, making the network even more resilient to shifted or distorted digits.

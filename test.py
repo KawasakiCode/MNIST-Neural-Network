@@ -1,8 +1,9 @@
 import cupy as np
+from activations import ReLU
 from data import load_and_prep_data
 import gc
 
-from forward import convolution_forward_vectorized, flatten_forward, linear_forward, relu_forward, softmax_forward
+from forward import convolution_forward_vectorized, flatten_forward, linear_forward, max_pool_forward, relu_forward, softmax_forward
 
 TEST_FILEPATH = "mnist_test/mnist_test.csv"
 
@@ -51,7 +52,12 @@ for i in range(0, num_samples, batch_size):
     
     # Pass the data through the convolutional layer
     conv_output_data, conv_cache = convolution_forward_vectorized(X_batch, F1, b_conv, stride = 1, pad = 0)
-    flattened_data, flatten_cache = flatten_forward(conv_output_data)
+    conv_relu = ReLU(conv_output_data)
+    conv_relu_cache = (conv_relu, F1, conv_output_data)
+
+    max_pool_out,  max_pool_cache = max_pool_forward(conv_relu)
+
+    flattened_data, flatten_cache = flatten_forward(max_pool_out)
 
     # Pass through first hidden layer
     dense1_output, dense1_cache = relu_forward(flattened_data, W1, b1)
