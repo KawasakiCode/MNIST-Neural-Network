@@ -1,11 +1,11 @@
 import cupy as np
-from activations import ReLU
-from data import augment_data, load_and_prep_data
-from network import initialize_weights_biases, initialize_cnn_filters
-from forward import convolution_forward_vectorized, linear_forward, max_pool_forward, relu_forward, flatten_forward, softmax_forward
-from backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward, max_pool_backpropagation, relu_conv_backward
-from losses import Categorical_Cross_Entropy
-from optimizers import Adam, SGD
+from numpy.activations import ReLU
+from numpy.data import augment_data, load_and_prep_data
+from numpy.network import initialize_weights_biases, initialize_cnn_filters
+from numpy.forward import convolution_forward_vectorized, linear_forward, max_pool_forward, relu_forward, flatten_forward, softmax_forward
+from numpy.backpropagation import backpropagation_relu, backpropagation_softmax, backpropagation_unflatten, backpropagation_vectorized, linear_backward, max_pool_backpropagation, relu_conv_backward
+from numpy.losses import Categorical_Cross_Entropy
+from numpy.optimizers import Adam, SGD
 
 import gc
 
