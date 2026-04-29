@@ -1,9 +1,9 @@
 import cupy as np
-from activations import ReLU
-from data import load_and_prep_data
+from numpy.activations import ReLU
+from numpy.data import load_and_prep_data
 import gc
 
-from forward import convolution_forward_vectorized, flatten_forward, linear_forward, max_pool_forward, relu_forward, softmax_forward
+from numpy.forward import convolution_forward_vectorized, flatten_forward, linear_forward, max_pool_forward, relu_forward, softmax_forward
 
 TEST_FILEPATH = "mnist_test/mnist_test.csv"
 

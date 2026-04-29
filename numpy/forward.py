@@ -1,6 +1,6 @@
 import cupy as np
-from activations import ReLU, Softmax
-from network import im2col
+from numpy.activations import ReLU, Softmax
+from numpy.network import im2col
 
 # Forward pass functions
 def conv_forward(input_data, filters, biases):

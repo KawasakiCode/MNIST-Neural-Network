@@ -2,4 +2,4 @@
 /mnist_test
 /mnist_train
 /__pycache__
-/trained_weights.npz
+/numpy/trained_weights.npz
