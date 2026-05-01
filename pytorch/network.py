@@ -26,7 +26,7 @@ class MNIST(nn.Module):
         self.dense1 = nn.Linear(in_features=1352, out_features=128)
 
         # Dropout Regularization
-        self.dropout = nn.Droupout(p=0.2)
+        self.dropout = nn.Dropout(p=0.2)
 
         # Hidden Layer 2
         self.dense2 = nn.Linear(in_features=128, out_features=10)
@@ -43,7 +43,7 @@ class MNIST(nn.Module):
 
         x = self.dense1(x)
         x = self.relu(x)
-        x = self.droput(x)
+        x = self.dropout(x)
 
         logits = self.dense2(x)
 

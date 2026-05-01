@@ -26,8 +26,8 @@ def load_and_prep_data(filepath):
     return X_train, Y_encoded
 
 def augment_data(data):
-    shift_y = np.random.randint(-2, 3)
-    shift_x = np.random.randint(-2, 3)
+    shift_y = int(np.random.randint(-2, 3))
+    shift_x = int(np.random.randint(-2, 3))
 
     shifted_data = np.zeros_like(data)
 

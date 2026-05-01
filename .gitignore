@@ -3,3 +3,5 @@
 /mnist_train
 /__pycache__
 /numpy/trained_weights.npz
+/.vscode
+/pytorch/__pycache__
