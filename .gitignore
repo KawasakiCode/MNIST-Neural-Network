@@ -5,3 +5,4 @@
 /numpy/trained_weights.npz
 /.vscode
 /pytorch/__pycache__
+/pytorch/trained_model.pth
