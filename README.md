@@ -1,11 +1,12 @@
 # NumPy Deep Learning: From Scratch
 
-This project is a handwritten digit recognition neural network built entirely from scratch using pure Python and NumPy. The goal of this project was to understand the underlying calculus, linear algebra, and architecture of machine learning without relying on "black-box" frameworks like TensorFlow or PyTorch.
+This project is a handwritten digit recognition neural network built entirely from scratch using pure Python and NumPy. The project also builds the exact same network architecture using PyTorch and Tensorflow to compare and learn both frameworks. The goal of this project was to understand the underlying calculus, linear algebra, and architecture of machine learning before using frameworks like TensorFlow or PyTorch where the higher level of the language's make it harder to understand the internal logic.
 
 ## The Journey & Architecture Evolution
 
 This network was built iteratively, starting from a basic mathematical foundation and evolving into a deep learning architecture.
 
+### Numpy Implementation
 ### Step 1: The Shallow Foundation
 * **Architecture:** 1 Hidden Layer (128 nodes).
 * **Details:** Implemented the core forward pass, backpropagation, and Gradient Descent algorithms. Flattened $28 \times 28$ pixel images into a 784-element 1D array.
@@ -50,6 +51,24 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Architecture:** Added a Max Pooling layer after the convolutional one.
 * **Details:** The final architectural upgrade is the Max Pooling layer, which acts as a purely mathematical spatial crusher to isolate dominant features, grant translation invariance, and drastically reduce the parameter count for the upcoming Dense layers. In the forward pass, the flat memory of the 4D Convolutional output is carefully reshaped into 6 dimensions and transposed to physically group pixels into true spatial blocks, where the highest value is extracted and the rest are discarded. During the backward pass, the layer executes a "stretch and strike" maneuver, utilizing np.repeat to inflate the shrunken error gradient back to its original dimensions before multiplying it element-wise against the saved mask. This instantly zeroes out the error for the discarded pixels while perfectly routing the gradient back to the original maximum coordinates, securing the unbroken mathematical chain of your Convolutional Neural Network.
 * **Results:** Achieved 98.76% Training Accuracy and 99.31% Testing Accuracy. The network correctly used Max Pooling to reach it's ultimate potential breaking the 99+% testing accuracy. Max Pooling also slightly increased Training Accuracy.
+
+### PyTorch Implementation
+* **Architecture:** The network has the exact same architecture as the numpy version.
+* **Details:** This section of the project transitions the custom neural network into a fully optimized PyTorch implementation. By leveraging PyTorch's nn.Module and Autograd engine, the network achieves significantly faster training times and exceptional accuracy through GPU acceleration and highly optimized backend operations.
+
+Performance
+Training Accuracy: 98.38%
+
+Testing Accuracy: 99.06%
+
+Key Features & Optimizations
+Native GPU Augmentation: Custom data augmentation (random coordinate shifting) is implemented using pure PyTorch tensors. This allows the augmentation to run dynamically per batch entirely on the GPU (CUDA), completely eliminating the CPU-GPU synchronization bottleneck.
+
+Optimized Loss Calculation: The training loop utilizes PyTorch's CrossEntropyLoss combined with 1D class indices (torch.argmax) rather than raw 2D one-hot encoded arrays. This exploits PyTorch's internal C++ optimizations to bypass zero-multiplication, saving memory and CPU cycles.
+
+Dynamic Data Loading: Implements TensorDataset and DataLoader for efficient VRAM batching and perfect epoch-level shuffling, forcing the network to learn true translation invariance rather than memorizing batch orders.
+
+Strict Evaluation Protocol: The testing pipeline cleanly separates training logic from evaluation. It utilizes model.eval() to lock the network state and processes the raw, un-augmented test dataset inside a torch.no_grad() block to eliminate gradient memory overhead and reveal true real-world accuracy.
 
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
