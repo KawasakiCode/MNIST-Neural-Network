@@ -12,7 +12,7 @@ X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
 Y_train_tensor = torch.tensor(Y_train, dtype=torch.float32)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-X_train_tensor = X_train.to(device)
+X_train_tensor = X_train_tensor.to(device)
 Y_train_tensor = Y_train_tensor.to(device)
 
 train_dataset = TensorDataset(X_train_tensor, Y_train_tensor)
@@ -34,11 +34,10 @@ for epoch in range(30):
         X_batch_augmented = augment_data(X_batch_tensor)
 
         Y_batch = Y_batch.to(device)
+        Y_batch_indices = torch.argmax(Y_batch, dim=1)
 
         logits = model(X_batch_augmented)
         loss = criterion(logits, Y_batch)
-
-        Y_batch_indices = torch.argmax(Y_batch, dim=1)
 
         predictions = torch.argmax(logits, dim=1)
         running_correct_predictions += (predictions == Y_batch_indices).sum().item()

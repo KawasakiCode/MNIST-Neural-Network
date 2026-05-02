@@ -27,8 +27,8 @@ def load_and_prep_data(filepath):
     return X_train, Y_encoded
 
 def augment_data(data):
-    shift_y = torch.randint(-2, 3)
-    shift_x = torch.randint(-2, 3)
+    shift_y = torch.randint(-2, 3, (1,)).item()
+    shift_x = torch.randint(-2, 3, (1,)).item()
 
     shifted_data = torch.zeros_like(data)
 
