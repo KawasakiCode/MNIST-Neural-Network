@@ -1,4 +1,5 @@
 import cupy as np
+import torch
 
 def load_and_prep_data(filepath):
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
@@ -26,10 +27,10 @@ def load_and_prep_data(filepath):
     return X_train, Y_encoded
 
 def augment_data(data):
-    shift_y = int(np.random.randint(-2, 3))
-    shift_x = int(np.random.randint(-2, 3))
+    shift_y = torch.randint(-2, 3)
+    shift_x = torch.randint(-2, 3)
 
-    shifted_data = np.zeros_like(data)
+    shifted_data = torch.zeros_like(data)
 
     dest_y1 = max(0, shift_y)
     dest_y2 = min(28, 28 + shift_y)

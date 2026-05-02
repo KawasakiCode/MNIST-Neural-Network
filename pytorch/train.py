@@ -8,16 +8,14 @@ TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
 
 X_train, Y_train = load_and_prep_data(TRAIN_FILEPATH)
 
-X_augmented = augment_data(X_train)
-
-X_augmented_tensor = torch.tensor(X_augmented, dtype=torch.float32)
+X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
 Y_train_tensor = torch.tensor(Y_train, dtype=torch.float32)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-X_train_tensor = X_augmented_tensor.to(device)
+X_train_tensor = X_train.to(device)
 Y_train_tensor = Y_train_tensor.to(device)
 
-train_dataset = TensorDataset(X_augmented_tensor, Y_train_tensor)
+train_dataset = TensorDataset(X_train_tensor, Y_train_tensor)
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 
 model = MNIST().to(device)
@@ -32,12 +30,12 @@ for epoch in range(30):
 
     for X_batch, Y_batch in train_loader:
 
-        X_batch_np = X_batch.cpu().numpy()
+        X_batch_tensor = X_batch.to(device)
+        X_batch_augmented = augment_data(X_batch_tensor)
 
-        X_batch_tensor = torch.tensor(X_batch, dtype=torch.float32).to(device)
         Y_batch = Y_batch.to(device)
 
-        logits = model(X_batch)
+        logits = model(X_batch_augmented)
         loss = criterion(logits, Y_batch)
 
         Y_batch_indices = torch.argmax(Y_batch, dim=1)
