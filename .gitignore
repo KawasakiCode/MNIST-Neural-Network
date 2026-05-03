@@ -6,3 +6,4 @@
 /.vscode
 /pytorch/__pycache__
 trained_model.pth
+/tensorflow/__pycache__

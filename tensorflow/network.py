@@ -3,7 +3,7 @@ import keras
 from keras import Model
 
 class MNIST(Model):
-    def __init__(self, inputs, training=False):
+    def __init__(self):
         super().__init__()
         
         # Convolutional layer
@@ -37,7 +37,7 @@ class MNIST(Model):
         # Forward Pass function
         # TensorFlow automatically stores cache
 
-        x = self.conv1(inputs)
+        x = self.conv(inputs)
         x = self.relu(x)
         x = self.maxpool(x)
 

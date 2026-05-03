@@ -1,5 +1,5 @@
 import cupy as np
-import torch
+import tensorflow as tf
 
 def load_and_prep_data(filepath):
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
@@ -27,10 +27,11 @@ def load_and_prep_data(filepath):
     return X_train, Y_encoded
 
 def augment_data(data):
-    shift_y = torch.randint(-2, 3, (1,)).item()
-    shift_x = torch.randint(-2, 3, (1,)).item()
+    x_np = data.numpy()
+    shift_y = np.random.randint(-2, 3)
+    shift_x = np.random.randint(-2, 3)
 
-    shifted_data = torch.zeros_like(data)
+    shifted_data = np.zeros_like(x_np)
 
     dest_y1 = max(0, shift_y)
     dest_y2 = min(28, 28 + shift_y)
@@ -42,6 +43,7 @@ def augment_data(data):
     src_x1 = max(0, -shift_x)
     src_x2 = min(28, 28 - shift_x)
 
-    shifted_data[:, :, dest_y1:dest_y2, dest_x1:dest_x2] = data[:, :, src_y1:src_y2, src_x1:src_x2]
+    shifted_data[:, :, dest_y1:dest_y2, dest_x1:dest_x2] = x_np[:, :, src_y1:src_y2, src_x1:src_x2]
+    shifted_data_tf = tf.convert_to_tensor(shifted_data, dtype=tf.float32)
 
-    return shifted_data
+    return shifted_data_tf
