@@ -7,13 +7,23 @@ TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
 X_train, Y_train = load_and_prep_data(TRAIN_FILEPATH)
 
 # Convert the numpy array's into tensorflow tensors
-X_train_tensor = tf.convert_to_tensor(X_train.get(), dtype=tf.float32)
-Y_train_tensor = tf.convert_to_tensor(Y_train.get(), dtype=tf.float32)
+X_train_tensor = tf.convert_to_tensor(X_train, dtype=tf.float32)
+Y_train_tensor = tf.convert_to_tensor(Y_train, dtype=tf.float32)
 
 # Dataset.slices pairs the images from X_train with labels from Y_train
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train_tensor, Y_train_tensor))
 # .shuffle Shuffles the images and .batch creates the batches for the training
 train_loader = train_dataset.shuffle(buffer_size=60000).batch(64)
+
+# Augmentation
+data_augmentation = tf.keras.Sequential([
+    tf.keras.layers.RandomTranslation(
+        height_factor=0.1, 
+        width_factor=0.1, 
+        fill_mode='constant',
+        fill_value=0.0
+    )
+])
 
 # Initialize the model
 model = MNIST()
@@ -32,7 +42,7 @@ for epoch in range(30):
     for X_batch, Y_batch in train_loader:
         
         # Augment per batch to ensure randomness
-        X_batch_augmented = augment_data(X_batch)
+        X_batch_augmented = data_augmentation(X_batch, training=True)
 
         # Gradient Tape watches all calculations to later compute the gradients
         with tf.GradientTape() as tape:
@@ -56,9 +66,5 @@ for epoch in range(30):
     
     if epoch % 1 == 0:
         epoch_loss = running_loss / len(train_dataset)
-        epoch_accuracy = running_correct_predictions / total_samples
-        print(f"Epoch {epoch+1} Loss: {epoch_loss} Accuracy: {epoch_accuracy}")
-
-
-
-
+        epoch_accuracy = running_correct_predictions / total_samples * 100
+        print(f"Epoch {epoch+1} Loss: {epoch_loss:.4f} Accuracy: {epoch_accuracy:.2f}%")

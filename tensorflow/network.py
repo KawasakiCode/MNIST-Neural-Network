@@ -10,7 +10,7 @@ class MNIST(Model):
         # 1 color channel
         # 8 filters
         # 3x3 filter size
-        self.conv = keras.layers.Conv2D(filters=8, kernel_size=3)
+        self.conv = keras.layers.Conv2D(filters=8, kernel_size=3, data_format='channels_first')
 
         # ReLU
         self.relu = keras.layers.ReLU()

@@ -1,4 +1,4 @@
-import cupy as np
+import numpy as np
 import tensorflow as tf
 
 def load_and_prep_data(filepath):
@@ -33,15 +33,15 @@ def augment_data(data):
 
     shifted_data = np.zeros_like(x_np)
 
-    dest_y1 = max(0, shift_y)
-    dest_y2 = min(28, 28 + shift_y)
-    dest_x1 = max(0, shift_x)
-    dest_x2 = min(28, 28 + shift_x)
+    dest_y1 = int(max(0, shift_y))
+    dest_y2 = int(min(28, 28 + shift_y))
+    dest_x1 = int(max(0, shift_x))
+    dest_x2 = int(min(28, 28 + shift_x))
 
-    src_y1 = max(0, -shift_y)
-    src_y2 = min(28, 28 - shift_y)
-    src_x1 = max(0, -shift_x)
-    src_x2 = min(28, 28 - shift_x)
+    src_y1 = int(max(0, -shift_y))
+    src_y2 = int(min(28, 28 - shift_y))
+    src_x1 = int(max(0, -shift_x))
+    src_x2 = int(min(28, 28 - shift_x))
 
     shifted_data[:, :, dest_y1:dest_y2, dest_x1:dest_x2] = x_np[:, :, src_y1:src_y2, src_x1:src_x2]
     shifted_data_tf = tf.convert_to_tensor(shifted_data, dtype=tf.float32)
