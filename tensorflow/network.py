@@ -18,7 +18,7 @@ class MNIST(Model):
         # Max Pool layer
         # 2x2 block size
         # Stride 2 (match block size)
-        self.maxpool = keras.layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2))
+        self.maxpool = keras.layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2), data_format='channels_first')
 
         # Dense Layers
         # Flatten Max Pool output

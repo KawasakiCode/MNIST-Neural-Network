@@ -2,6 +2,8 @@ from data import load_and_prep_data, augment_data
 from network import MNIST
 import tensorflow as tf
 
+tf.keras.backend.set_image_data_format('channels_first')
+
 TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
 
 X_train, Y_train = load_and_prep_data(TRAIN_FILEPATH)
@@ -21,7 +23,7 @@ data_augmentation = tf.keras.Sequential([
         height_factor=0.1, 
         width_factor=0.1, 
         fill_mode='constant',
-        fill_value=0.0
+        fill_value=0.0,
     )
 ])
 
@@ -34,6 +36,33 @@ loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 # Optimizer
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
+@tf.function
+def batch_loop(X_batch, Y_batch):
+    # Augment per batch to ensure randomness
+        # X_batch_augmented = data_augmentation(X_batch, training=True)
+
+        # Gradient Tape watches all calculations to later compute the gradients
+        with tf.GradientTape() as tape:
+            
+            # Forward Pass
+            logits = model(X_batch, training=True)
+
+            loss_value = loss_fn(Y_batch, logits)
+        
+        gradients = tape.gradient(loss_value, model.trainable_variables)
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+        
+        predicted_classes = tf.argmax(logits, axis=1)
+        true_classes = tf.argmax(Y_batch, axis=1)
+
+        correct_predictions = tf.equal(predicted_classes, true_classes)
+        correct_in_batch = tf.reduce_sum(tf.cast(correct_predictions, tf.int32))
+
+        dynamic_batch_size = tf.shape(X_batch)[0]
+
+        return loss_value, correct_in_batch, dynamic_batch_size
+
 for epoch in range(30):
     running_loss = 0.0
     running_correct_predictions = 0
@@ -41,30 +70,15 @@ for epoch in range(30):
 
     for X_batch, Y_batch in train_loader:
         
-        # Augment per batch to ensure randomness
-        X_batch_augmented = data_augmentation(X_batch, training=True)
-
-        # Gradient Tape watches all calculations to later compute the gradients
-        with tf.GradientTape() as tape:
-            
-            # Forward Pass
-            logits = model(X_batch_augmented, training=True)
-
-            loss_value = loss_fn(Y_batch, logits)
-        
-        gradients = tape.gradient(loss_value, model.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        loss_value, correct_in_batch, batch_size = batch_loop(X_batch, Y_batch)
 
         running_loss += loss_value.numpy()
-        predicted_classes = tf.argmax(logits, axis=1)
-        true_classes = tf.argmax(Y_batch, axis=1)
-
-        correct_predictions = tf.equal(predicted_classes, true_classes)
-        correct_in_batch = tf.reduce_sum(tf.cast(correct_predictions, tf.int32))
         running_correct_predictions += correct_in_batch.numpy()
-        total_samples += X_batch.shape[0]
-    
-    if epoch % 1 == 0:
-        epoch_loss = running_loss / len(train_dataset)
+        total_samples += batch_size.numpy()
+
+    if epoch % 5 == 0:
+        epoch_loss = running_loss / len(train_loader)
         epoch_accuracy = running_correct_predictions / total_samples * 100
         print(f"Epoch {epoch+1} Loss: {epoch_loss:.4f} Accuracy: {epoch_accuracy:.2f}%")
+
+model.save_weights("trained_model.weights.h5")
