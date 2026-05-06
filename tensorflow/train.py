@@ -38,9 +38,6 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
 @tf.function
 def batch_loop(X_batch, Y_batch):
-    # Augment per batch to ensure randomness
-        # X_batch_augmented = data_augmentation(X_batch, training=True)
-
         # Gradient Tape watches all calculations to later compute the gradients
         with tf.GradientTape() as tape:
             
@@ -69,7 +66,10 @@ for epoch in range(30):
     total_samples = 0
 
     for X_batch, Y_batch in train_loader:
-        
+        # Augment per batch to ensure randomness
+        # X_batch_augmented = tf.py_function(func=augment_data, inp=[X_batch], Tout=tf.float32)
+        # X_batch_augmented.set_shape(X_batch.shape)
+
         loss_value, correct_in_batch, batch_size = batch_loop(X_batch, Y_batch)
 
         running_loss += loss_value.numpy()

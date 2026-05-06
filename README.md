@@ -70,6 +70,38 @@ Dynamic Data Loading: Implements TensorDataset and DataLoader for efficient VRAM
 
 Strict Evaluation Protocol: The testing pipeline cleanly separates training logic from evaluation. It utilizes model.eval() to lock the network state and processes the raw, un-augmented test dataset inside a torch.no_grad() block to eliminate gradient memory overhead and reveal true real-world accuracy.
 
+### Tensorflow Implementation
+* **Architecture:** The network has the exact same architecture as the numpy version.
+* **Details:** The model demonstrates high precision and generalization when evaluated on standard data. However, a significant performance regression was observed when implementing a native TensorFlow augmentation pipeline without explicit data-format handling.
+
+* **Performance:**
+Training Accuracy: 99.71%
+Testing Accuracy (No augmentation): 99.06%
+Testing Accuracy (With augmentation): 12.20%
+
+The model demonstrates high precision and generalization when evaluated on standard data. However, a significant performance regression was observed when implementing a native TensorFlow augmentation pipeline without explicit data-format handling.
+
+Rather than relying on TensorFlow's high-level model.fit() API, this implementation utilizes a fully custom training architecture. This approach provides granular control over the forward pass, gradient calculations, and hardware utilization, closely mirroring the flexibility typically associated with PyTorch.
+
+Key Architectural Features
+Object-Oriented Model Subclassing:
+The network is built by subclassing tf.keras.Model. All layers (Convolutions, Max Pooling, Flattening, and Dense layers) are explicitly instantiated in the __init__ method, and the forward pass is manually routed through the call() method.
+
+Custom Training Loop & GradientTape:
+Training is executed via a raw Python for loop. Backpropagation is handled manually using tf.GradientTape to record operations, calculate gradients, and apply them via the optimizer. This allows for absolute control over the mathematical execution of each step.
+
+Graph Compilation (@tf.function):
+To bypass the overhead of standard Python eager execution, the core training and testing steps are wrapped with the @tf.function decorator. This triggers XLA (Accelerated Linear Algebra) compilation, converting the Python logic into a static, highly optimized C++ execution graph. This drastically accelerates matrix multiplications and allows the CPU/GPU to utilize advanced vector extensions.
+
+Optimized Data Pipeline:
+The data stream is managed using the tf.data.Dataset API. To prevent GPU/CPU starvation during training, the pipeline implements asynchronous prefetching (tf.data.AUTOTUNE), ensuring that the next batch of data is loaded and augmented in the background while the current batch is actively computing.
+
+Cross-Framework Shape Compatibility:
+To maintain compatibility with PyTorch-style datasets, the network explicitly configures all convolutional and pooling layers to process spatial data using the channels_first data format (Batch, Channels, Height, Width), overriding TensorFlow's native channels_last default.
+
+Dynamic Batch Sizing:
+The architecture natively handles irregular batch sizes at the end of epochs. Instead of relying on static Python .shape calls, it dynamically calculates batch dimensions during runtime within the compiled C++ graph using tf.shape().
+
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
 * **Dimensionality:** Mastered matrix alignment—ensuring weights, biases, and dot products flow seamlessly backward and forward.
