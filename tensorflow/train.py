@@ -1,6 +1,8 @@
 from data import load_and_prep_data, augment_data
 from network import MNIST
 import tensorflow as tf
+from matplotlib import pyplot as plt
+import cupy as np
 
 tf.keras.backend.set_image_data_format('channels_first')
 
@@ -67,10 +69,10 @@ for epoch in range(30):
 
     for X_batch, Y_batch in train_loader:
         # Augment per batch to ensure randomness
-        # X_batch_augmented = tf.py_function(func=augment_data, inp=[X_batch], Tout=tf.float32)
-        # X_batch_augmented.set_shape(X_batch.shape)
+        X_batch_augmented = tf.py_function(func=augment_data, inp=[X_batch], Tout=tf.float32)
+        X_batch_augmented.set_shape(X_batch.shape)
 
-        loss_value, correct_in_batch, batch_size = batch_loop(X_batch, Y_batch)
+        loss_value, correct_in_batch, batch_size = batch_loop(X_batch_augmented, Y_batch)
 
         running_loss += loss_value.numpy()
         running_correct_predictions += correct_in_batch.numpy()
