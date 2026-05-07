@@ -19,18 +19,10 @@ train_dataset = tf.data.Dataset.from_tensor_slices((X_train_tensor, Y_train_tens
 # .shuffle Shuffles the images and .batch creates the batches for the training
 train_loader = train_dataset.shuffle(buffer_size=60000).batch(64)
 
-# Augmentation
-data_augmentation = tf.keras.Sequential([
-    tf.keras.layers.RandomTranslation(
-        height_factor=0.1, 
-        width_factor=0.1, 
-        fill_mode='constant',
-        fill_value=0.0,
-    )
-])
-
 # Initialize the model
 model = MNIST()
+dummy = tf.zeros([1, 1, 28, 28])
+model(dummy)
 
 # Loss function (criterion)
 # from_logits ensures that softmax also runs
