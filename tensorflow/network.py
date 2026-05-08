@@ -22,7 +22,7 @@ class MNIST(Model):
 
         # Dense Layers
         # Flatten Max Pool output
-        self.flatten = keras.layers.Flatten()
+        self.flatten = keras.layers.Flatten(data_format='channels_first')
 
         # Hidden Layer 1
         self.dense1 = keras.layers.Dense(units=128)

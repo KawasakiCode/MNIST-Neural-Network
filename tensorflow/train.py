@@ -1,10 +1,6 @@
 from data import load_and_prep_data, augment_data
 from network import MNIST
 import tensorflow as tf
-from matplotlib import pyplot as plt
-import cupy as np
-
-tf.keras.backend.set_image_data_format('channels_first')
 
 TRAIN_FILEPATH = "mnist_train/mnist_train.csv"
 
@@ -19,7 +15,7 @@ train_dataset = tf.data.Dataset.from_tensor_slices((X_train_tensor, Y_train_tens
 # .shuffle Shuffles the images and .batch creates the batches for the training
 train_loader = train_dataset.shuffle(buffer_size=60000).batch(64)
 
-# Initialize the model
+# Initialize the model and run a fake forward pass
 model = MNIST()
 dummy = tf.zeros([1, 1, 28, 28])
 model(dummy)
@@ -30,6 +26,8 @@ loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 # Optimizer
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
+# Put the train loop in a separate function to take advantage of tf.function's
+# increased execution speed
 @tf.function
 def batch_loop(X_batch, Y_batch):
         # Gradient Tape watches all calculations to later compute the gradients
@@ -54,6 +52,7 @@ def batch_loop(X_batch, Y_batch):
 
         return loss_value, correct_in_batch, dynamic_batch_size
 
+# Training loop
 for epoch in range(30):
     running_loss = 0.0
     running_correct_predictions = 0

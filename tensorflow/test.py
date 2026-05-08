@@ -2,8 +2,6 @@ from data import load_and_prep_data
 import tensorflow as tf
 from network import MNIST
 
-tf.keras.backend.set_image_data_format('channels_first')
-
 TEST_FILEPATH = "mnist_test/mnist_test.csv"
 
 X_test, Y_test = load_and_prep_data(TEST_FILEPATH)
@@ -17,6 +15,7 @@ test_dataset = tf.data.Dataset.from_tensor_slices((X_test_tensor, Y_test_tensor)
 # .shuffle Shuffles the images and .batch creates the batches for the training
 test_loader = test_dataset.batch(64).prefetch(tf.data.AUTOTUNE)
 
+# Run a fake forward pass to build the model correctly
 model = MNIST()
 dummy = tf.zeros([1, 1, 28, 28])
 model(dummy)
@@ -27,6 +26,8 @@ model.load_weights("trained_model.weights.h5")
 # from_logits ensures that softmax also runs
 loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
+# Write the test loop in a new function to get advantage of tf.function
+# Which makes it run significantly faster
 @tf.function
 def test_loop(X_batch, Y_batch):
 
@@ -47,6 +48,7 @@ running_loss = 0.0
 running_correct_predictions = 0
 total_samples = 0
 
+# Test forward pass
 for X_batch, Y_batch in test_loader:
     
     loss_value, correct_in_batch, batch_size = test_loop(X_batch, Y_batch)

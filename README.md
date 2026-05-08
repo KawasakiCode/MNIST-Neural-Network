@@ -56,7 +56,7 @@ This network was built iteratively, starting from a basic mathematical foundatio
 * **Architecture:** The network has the exact same architecture as the numpy version.
 * **Details:** This section of the project transitions the custom neural network into a fully optimized PyTorch implementation. By leveraging PyTorch's nn.Module and Autograd engine, the network achieves significantly faster training times and exceptional accuracy through GPU acceleration and highly optimized backend operations.
 
-Performance
+* **Performance:**
 Training Accuracy: 98.38%
 
 Testing Accuracy: 99.06%
@@ -72,14 +72,11 @@ Strict Evaluation Protocol: The testing pipeline cleanly separates training logi
 
 ### Tensorflow Implementation
 * **Architecture:** The network has the exact same architecture as the numpy version.
-* **Details:** The model demonstrates high precision and generalization when evaluated on standard data. However, a significant performance regression was observed when implementing a native TensorFlow augmentation pipeline without explicit data-format handling.
+* **Details:** The model demonstrates high precision and generalization when evaluated on standard data.
 
 * **Performance:**
 Training Accuracy: 99.71%
-Testing Accuracy (No augmentation): 99.06%
-Testing Accuracy (With augmentation): 12.20%
-
-The model demonstrates high precision and generalization when evaluated on standard data. However, a significant performance regression was observed when implementing a native TensorFlow augmentation pipeline without explicit data-format handling.
+Testing Accuracy: 99.06%
 
 Rather than relying on TensorFlow's high-level model.fit() API, this implementation utilizes a fully custom training architecture. This approach provides granular control over the forward pass, gradient calculations, and hardware utilization, closely mirroring the flexibility typically associated with PyTorch.
 
@@ -108,3 +105,27 @@ The architecture natively handles irregular batch sizes at the end of epochs. In
 * **Optimization vs. Capacity:** Learned that falling into local minima of the loss function cannot always be fixed by throwing more nodes at the problem.
 * **Spacial Invariance:** Learned how Parameter Sharing (using the same $3 \times 3$ filter weights across the whole image) allows the model to recognize a digit regardless of its position.
 * **Hardware & Memory Management:** Discovered that software performance is heavily dictated by memory leaks, garbage collection, and how efficiently data is batched to the GPU.
+
+### Framework Comparison & Developer Experience
+Building this architecture across three distinct frameworks—NumPy, PyTorch, and TensorFlow—provided a unique, comparative look at how different ecosystems handle deep learning paradigms. Below is a breakdown of the developer experience for each.
+
+## 1. NumPy: The Educational Foundation
+Writing a neural network from scratch in pure NumPy was the most complex but undeniably the most valuable implementation for foundational learning.
+
+Pros: It forces a deep, uncompromising understanding of the underlying mathematics, linear algebra, and calculus that power deep learning. Because the code is entirely transparent, troubleshooting mathematical errors is straightforward. You know exactly what every matrix multiplication is doing.
+
+Cons: The lack of abstraction means you must manually maintain the forward-pass cache for backpropagation, which drastically increases codebase size and complexity. Additionally, standard NumPy lacks native CUDA support, restricting training to the CPU.
+
+## 2. PyTorch: The Developer Favorite
+Overall, PyTorch provided the most pleasant and frictionless developer experience for this specific project.
+
+Pros: The code structure is incredibly intuitive, easy to read, and easy to write. It abstracts away the tedious elements (like manual cache keeping and gradient calculation) via Autograd, while still feeling like standard Python. Native CUDA implementation is seamless, allowing for instant GPU acceleration.
+
+Cons: The primary trade-off for this ease of use is a loss of fundamental visibility. Because PyTorch handles the heavy lifting at such a high level, it abstracts away the raw mechanics of how the network executes operations in the background.
+
+## 3. TensorFlow: The Immutable Middle-Ground
+TensorFlow sat somewhere between the raw math of NumPy and the smooth abstraction of PyTorch, bringing its own unique workflow and challenges.
+
+Pros: It is highly structured and provides excellent tools for building complex pipelines, making it relatively easy to read and write once the syntax is understood. The @tf.function graph compilation offers massive speed optimizations.
+
+Cons: The strict immutability of TensorFlow tensors requires a paradigm shift in how you write logic compared to standard Python. Furthermore, it proved to be the most difficult framework to debug. When shape mismatches occurred (specifically regarding data format defaults), the resulting error messages were opaque and did not clearly point to the root cause of the bug.
