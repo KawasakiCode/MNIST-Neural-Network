@@ -13,6 +13,7 @@ Y_test_tensor = torch.tensor(Y_test, dtype=torch.float32)
 
 # Pick cuda as the device if available and send the tensors there
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(device)
 X_test_tensor = X_test_tensor.to(device)
 Y_test_tensor = Y_test_tensor.to(device)
 

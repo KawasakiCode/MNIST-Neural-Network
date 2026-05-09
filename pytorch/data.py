@@ -1,4 +1,4 @@
-import cupy as np
+import numpy as np
 import torch
 
 def load_and_prep_data(filepath):
