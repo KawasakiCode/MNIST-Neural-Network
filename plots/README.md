@@ -8,9 +8,9 @@ All figures used in the project README. Every script writes PNGs into `plots/img
 
 ```bash
 cd plots
-python plot_static.py        # architecture + framework comparison (no training needed)
+python plot_static.py        # architecture evolution, framework comparison, generalization gap (no training needed)
 python plot_curves.py        # loss / accuracy curves (needs metrics/*.json)
-python plot_diagnostics.py   # confusion matrix, per-class acc, misclassifications, filters
+python plot_diagnostics.py   # confusion matrix, per-class acc, misclassifications, filters, activation maps
 ```
 
 ## What needs what

@@ -118,6 +118,45 @@ def plot_framework_comparison():
     print("wrote", path)
 
 
+# --------------------------------------------------------------------------- #
+# 3. Generalization gap (train accuracy - test accuracy) per framework
+#    Positive => overfitting (does better on data it trained on).
+#    Negative => the training-time regularizers (augmentation + dropout) make
+#    the *training* score look worse than the clean test score.
+# --------------------------------------------------------------------------- #
+def plot_generalization_gap():
+    frameworks = list(FINAL.keys())
+    gap = [FINAL[f][0] - FINAL[f][1] for f in frameworks]  # train - test
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    colors = ["#C44E52" if g > 0 else "#55A868" for g in gap]
+    bars = ax.bar(range(len(frameworks)), gap, width=0.55,
+                  color=colors, edgecolor="white")
+    for b, g in zip(bars, gap):
+        va = "bottom" if g >= 0 else "top"
+        off = 3 if g >= 0 else -3
+        ax.annotate(f"{g:+.2f}", (b.get_x() + b.get_width() / 2, g),
+                    textcoords="offset points", xytext=(0, off),
+                    ha="center", va=va, fontsize=10, fontweight="bold")
+
+    ax.axhline(0, color="black", linewidth=1)
+    ax.set_xticks(range(len(frameworks)))
+    ax.set_xticklabels([LABELS[f] for f in frameworks])
+    ax.set_ylabel("Train accuracy - Test accuracy (%)")
+    ax.set_ylim(-1.0, 1.0)
+    ax.set_title("Generalization Gap by Framework", fontsize=13, fontweight="bold")
+    # Legend for the color meaning.
+    ax.text(0.5, 0.95, "red = overfits (train > test)     green = test >= train",
+            transform=ax.transAxes, ha="center", va="top", fontsize=9,
+            color="gray")
+
+    path = os.path.join(OUT, "generalization_gap.png")
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+    print("wrote", path)
+
+
 if __name__ == "__main__":
     plot_architecture_evolution()
     plot_framework_comparison()
+    plot_generalization_gap()

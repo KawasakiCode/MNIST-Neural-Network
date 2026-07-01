@@ -38,14 +38,17 @@ WEIGHTS = os.path.join(ROOT, "trained_model.pth")
 TEST_CSV = os.path.join(ROOT, "mnist_test", "mnist_test.csv")
 
 
-def run_inference():
-    X, Y = load_and_prep_data(TEST_CSV)
-    X_t = torch.tensor(X, dtype=torch.float32)
-    y_true = np.asarray(Y).argmax(axis=1)
-
+def load_model():
     model = MNIST()
     model.load_state_dict(torch.load(WEIGHTS, map_location="cpu", weights_only=True))
     model.eval()
+    return model
+
+
+def run_inference(model):
+    X, Y = load_and_prep_data(TEST_CSV)
+    X_t = torch.tensor(X, dtype=torch.float32)
+    y_true = np.asarray(Y).argmax(axis=1)
 
     preds = []
     with torch.no_grad():
@@ -134,11 +137,63 @@ def plot_learned_filters(filters):
     print("wrote", path)
 
 
+def plot_activation_maps(model, X, y_true, digit=None):
+    # Pick one clean sample of the requested digit (default: first image).
+    if digit is None:
+        idx = 0
+    else:
+        idx = int(np.where(y_true == digit)[0][0])
+    sample = torch.tensor(X[idx:idx + 1], dtype=torch.float32)
+
+    # Run the sample through the network stage by stage to grab activations.
+    with torch.no_grad():
+        conv = model.conv1(sample)            # (1, 8, 26, 26)
+        relu = model.relu(conv)               # after non-linearity
+        pooled = model.maxpool(relu)          # (1, 8, 13, 13)
+    relu = relu[0].numpy()
+    pooled = pooled[0].numpy()
+    n = relu.shape[0]  # 8 channels
+
+    # Rows: [input], conv+relu maps (8), maxpool maps (8).
+    fig = plt.figure(figsize=(n * 1.5, 5.2))
+    gs = fig.add_gridspec(2, n + 1, hspace=0.35, wspace=0.1)
+
+    ax0 = fig.add_subplot(gs[:, 0])
+    ax0.imshow(X[idx, 0], cmap="gray")
+    ax0.set_title(f"input\n(digit {y_true[idx]})", fontsize=10)
+    ax0.axis("off")
+
+    for c in range(n):
+        ax = fig.add_subplot(gs[0, c + 1])
+        ax.imshow(relu[c], cmap="viridis")
+        ax.axis("off")
+        if c == 0:
+            ax.set_ylabel("conv+relu", fontsize=9)
+        ax.set_title(f"ch {c}", fontsize=8)
+
+        ax = fig.add_subplot(gs[1, c + 1])
+        ax.imshow(pooled[c], cmap="viridis")
+        ax.axis("off")
+
+    fig.suptitle("Activation maps through Conv -> ReLU (top) -> MaxPool (bottom)",
+                 fontsize=13, fontweight="bold")
+    # Row labels via figure text.
+    fig.text(0.13, 0.70, "conv+relu\n26x26", ha="right", va="center", fontsize=9)
+    fig.text(0.13, 0.30, "maxpool\n13x13", ha="right", va="center", fontsize=9)
+
+    path = os.path.join(OUT, "activation_maps.png")
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+    print("wrote", path)
+
+
 if __name__ == "__main__":
-    X, y_true, y_pred, filters = run_inference()
+    model = load_model()
+    X, y_true, y_pred, filters = run_inference(model)
     acc = (y_true == y_pred).mean() * 100
     print(f"Test accuracy: {acc:.2f}%")
     cm = plot_confusion_matrix(y_true, y_pred)
     plot_per_class_accuracy(cm)
     plot_misclassifications(X, y_true, y_pred)
     plot_learned_filters(filters)
+    plot_activation_maps(model, X, y_true, digit=7)

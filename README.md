@@ -113,6 +113,11 @@ Same architecture, three implementations. TensorFlow overfits the most (widest t
 
 ![Framework comparison](plots/img/framework_comparison.png)
 
+### Generalization gap
+Train accuracy minus test accuracy. TensorFlow is the only implementation that overfits (**+0.65**, does better on data it trained on). NumPy and PyTorch score *lower* on training than on test because their training accuracy is measured on augmented, dropout-corrupted batches while the test set is clean — a signal that the regularization is doing its job rather than memorizing.
+
+![Generalization gap](plots/img/generalization_gap.png)
+
 ### Training curves
 Per-epoch loss and training accuracy for all three frameworks. These are produced by `plots/plot_curves.py` after running each `train.py` once (which now logs metrics to `metrics/history_<framework>.json`).
 
@@ -133,6 +138,11 @@ The classic MNIST confusions dominate the off-diagonal (9→4, 7→2, 5→3), an
 | ![Misclassifications](plots/img/misclassifications.png) | ![Learned filters](plots/img/learned_filters.png) |
 
 Most misclassifications are genuinely ambiguous handwriting; the eight learned 3×3 filters show the edge/stroke detectors the CNN discovered on its own.
+
+### What the network "sees" (activation maps)
+A single digit pushed through the first block. Each of the 8 conv channels reacts to a different stroke (top bar, diagonal, curve), ReLU zeroes out the negatives, and max pooling halves the resolution (26×26 → 13×13) while keeping the strongest response — the mechanism behind the translation invariance described in the Max Pooling step.
+
+![Activation maps](plots/img/activation_maps.png)
 
 ## Key Technical Learnings
 * **The Math is the Engine:** Fully translated the Chain Rule, Cross-Entropy Loss, Softmax, and ReLU derivatives into matrix operations.
