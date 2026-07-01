@@ -30,6 +30,9 @@ model = MNIST().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
+# Per-epoch metric history for plotting (see plots/plot_curves.py)
+history = {"epoch": [], "loss": [], "accuracy": []}
+
 # Training loop
 for epoch in range(30):
     running_loss = 0.0
@@ -63,6 +66,16 @@ for epoch in range(30):
         epoch_loss = running_loss / total_samples
         epoch_accuracy = (running_correct_predictions / total_samples) * 100
         print(f"Epoch: {epoch + 1}, Loss: {epoch_loss:.2f}, Accuracy: {epoch_accuracy:.2f}%")
-    
+        history["epoch"].append(epoch + 1)
+        history["loss"].append(float(epoch_loss))
+        history["accuracy"].append(float(epoch_accuracy))
+
 # Save model weights
 torch.save(model.state_dict(), "trained_model.pth")
+
+# Save metric history so the plotting scripts can draw loss/accuracy curves.
+import json, os
+os.makedirs("../metrics", exist_ok=True)
+with open("../metrics/history_pytorch.json", "w") as f:
+    json.dump(history, f, indent=2)
+print("Saved metric history to metrics/history_pytorch.json")

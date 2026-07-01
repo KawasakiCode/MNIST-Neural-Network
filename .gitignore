@@ -9,4 +9,4 @@ trained_model.pth
 /tensorflow/__pycache__
 trained_model.weights.h5
 /pip_tmp
-/numpy/__pycache__
+/numpy/__pycache__/plots/__pycache__

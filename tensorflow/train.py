@@ -52,6 +52,9 @@ def batch_loop(X_batch, Y_batch):
 
         return loss_value, correct_in_batch, dynamic_batch_size
 
+# Per-epoch metric history for plotting (see plots/plot_curves.py)
+history = {"epoch": [], "loss": [], "accuracy": []}
+
 # Training loop
 for epoch in range(30):
     running_loss = 0.0
@@ -69,9 +72,21 @@ for epoch in range(30):
         running_correct_predictions += correct_in_batch.numpy()
         total_samples += batch_size.numpy()
 
+    # Record every epoch so the plotted curve is smooth...
+    epoch_loss = running_loss / len(train_loader)
+    epoch_accuracy = running_correct_predictions / total_samples * 100
+    history["epoch"].append(epoch + 1)
+    history["loss"].append(float(epoch_loss))
+    history["accuracy"].append(float(epoch_accuracy))
+    # ...but only print every 5 to keep the console tidy.
     if epoch % 5 == 0:
-        epoch_loss = running_loss / len(train_loader)
-        epoch_accuracy = running_correct_predictions / total_samples * 100
         print(f"Epoch {epoch+1} Loss: {epoch_loss:.4f} Accuracy: {epoch_accuracy:.2f}%")
 
 model.save_weights("trained_model.weights.h5")
+
+# Save metric history so the plotting scripts can draw loss/accuracy curves.
+import json, os
+os.makedirs("../metrics", exist_ok=True)
+with open("../metrics/history_tensorflow.json", "w") as f:
+    json.dump(history, f, indent=2)
+print("Saved metric history to metrics/history_tensorflow.json")

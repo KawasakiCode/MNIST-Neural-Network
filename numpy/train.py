@@ -53,6 +53,9 @@ e = 1e-8
 
 t = 0
 
+# Per-epoch metric history for plotting (see plots/plot_curves.py)
+history = {"epoch": [], "loss": [], "accuracy": []}
+
 print("Training loop started")
 for epoch in range(30):
     permutation = np.random.permutation(num_samples)
@@ -147,8 +150,11 @@ for epoch in range(30):
 
     if epoch % 1 == 0:
         avg_loss = epoch_loss/batch_in_epoch
-        avg_accuracy = epoch_accuracy/batch_in_epoch 
+        avg_accuracy = epoch_accuracy/batch_in_epoch
         print(f"Epoch: {epoch + 1}, Loss: {avg_loss:.4f}, Accuracy: {avg_accuracy:.2f}%")
+        history["epoch"].append(epoch + 1)
+        history["loss"].append(float(avg_loss))
+        history["accuracy"].append(float(avg_accuracy))
     # Reduce lr every 10 epochs to find the highest accuracy
     if epoch % 10 == 0:
         lr = lr * 0.5
@@ -156,6 +162,13 @@ for epoch in range(30):
 print("Attemp saving")
 np.savez("trained_weights.npz", W1=W1, b1=b1, W2=W2, b2=b2, W3=W3, b3=b3, F1=F1, b_conv=b_conv)
 print("Saved successfully")
+
+# Save metric history so the plotting scripts can draw loss/accuracy curves.
+import json, os
+os.makedirs("../metrics", exist_ok=True)
+with open("../metrics/history_numpy.json", "w") as f:
+    json.dump(history, f, indent=2)
+print("Saved metric history to metrics/history_numpy.json")
 
 print(f"Training finished. Final results: Loss: {CCE_loss:.4f}, Accuracy: {avg_accuracy:.2f}%")
 
